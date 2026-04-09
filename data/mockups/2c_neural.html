@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2C - Neural / Deep AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: #05060f;
+    color: #b8c4d0;
+    font-size: 14px;
+  }
+
+  /* Subtle neural network bg */
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(56,189,248,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(168,85,247,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(20,184,166,0.02) 0%, transparent 60%);
+    z-index: 0;
+  }
+
+  header {
+    position: relative; z-index: 1;
+    background: rgba(5,6,15,0.9);
+    border-bottom: 1px solid rgba(56,189,248,0.1);
+    padding: 0 28px;
+    display: flex; align-items: stretch; justify-content: space-between;
+    height: 56px;
+  }
+  .header-left { display: flex; align-items: center; gap: 24px; }
+  header h1 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px; font-weight: 700;
+    color: #e2e8f0; letter-spacing: 1px;
+  }
+  header h1 .ai {
+    display: inline-block;
+    padding: 2px 6px; border-radius: 4px; font-size: 11px;
+    background: linear-gradient(135deg, #0ea5e9, #14b8a6);
+    color: #fff; vertical-align: middle; margin-left: 6px;
+  }
+
+  .nav-pills { display: flex; align-items: stretch; gap: 0; }
+  .nav-pills a {
+    display: flex; align-items: center;
+    padding: 0 18px; font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.3); text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .nav-pills a:hover { color: rgba(255,255,255,0.6); }
+  .nav-pills a.active {
+    color: #38bdf8;
+    border-bottom-color: #38bdf8;
+    background: linear-gradient(180deg, transparent 60%, rgba(56,189,248,0.05) 100%);
+  }
+
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .sync-status {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: rgba(255,255,255,0.25);
+  }
+  .sync-dot { width: 6px; height: 6px; background: #14b8a6; border-radius: 50%; box-shadow: 0 0 8px #14b8a6; animation: blink 3s infinite; }
+  @keyframes blink { 0%,90%,100% { opacity: 1; } 95% { opacity: 0; } }
+  .counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px; font-weight: 700; color: #38bdf8;
+  }
+
+  .layout { position: relative; z-index: 1; display: grid; grid-template-columns: 260px 1fr 280px; min-height: calc(100vh - 56px); }
+
+  /* Left */
+  .sidebar-left {
+    background: rgba(8,10,20,0.8);
+    border-right: 1px solid rgba(56,189,248,0.06);
+    padding: 20px 16px;
+  }
+  .sl-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .sl-header h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(255,255,255,0.2);
+  }
+  .sl-header .count-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #14b8a6;
+    background: rgba(20,184,166,0.1); padding: 2px 8px; border-radius: 4px;
+  }
+
+  .day-group { margin-bottom: 8px; }
+  .day-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: #38bdf8;
+    padding: 8px 0 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .day-label::after { content: ''; flex: 1; height: 1px; background: rgba(56,189,248,0.1); }
+  .day-label .today-tag { background: #14b8a6; color: #fff; font-size: 9px; padding: 1px 5px; border-radius: 3px; }
+
+  .tl-item {
+    display: grid; grid-template-columns: 36px 1fr; gap: 8px;
+    padding: 7px 8px; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .tl-item:hover { background: rgba(56,189,248,0.04); }
+  .tl-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: rgba(255,255,255,0.15);
+    text-align: right; padding-top: 2px;
+  }
+  .tl-pts.hot { color: #f472b6; }
+  .tl-pts.warm { color: #38bdf8; }
+  .tl-title { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+  .tl-item:hover .tl-title { color: rgba(255,255,255,0.7); }
+
+  /* Main */
+  .main { padding: 24px 28px; background: rgba(5,6,15,0.5); }
+
+  .top-banner {
+    background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(168,85,247,0.08));
+    border: 1px solid rgba(56,189,248,0.1);
+    border-radius: 12px; padding: 20px 24px;
+    margin-bottom: 28px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .top-banner-item { position: relative; }
+  .top-banner-item .tb-rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 48px; font-weight: 700;
+    position: absolute; top: -4px; right: 0;
+    background: linear-gradient(180deg, rgba(56,189,248,0.15), transparent);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .top-banner-item .tb-label { font-size: 10px; color: #14b8a6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .top-banner-item h3 { font-size: 15px; font-weight: 600; color: #e2e8f0; line-height: 1.5; padding-right: 40px; }
+  .top-banner-item .tb-meta { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 8px; }
+  .top-banner-item .tb-pts {
+    font-family: 'JetBrains Mono', monospace;
+    display: inline-block; margin-top: 8px;
+    font-size: 22px; font-weight: 700; color: #38bdf8;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: rgba(255,255,255,0.15); margin-bottom: 14px; margin-top: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label .accent { color: #14b8a6; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.04); }
+
+  .feed-item {
+    display: grid; grid-template-columns: 42px 1fr auto; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.15s;
+  }
+  .feed-item:hover { background: rgba(56,189,248,0.02); margin: 0 -12px; padding: 12px; border-radius: 8px; }
+  .feed-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; font-weight: 700; text-align: center;
+    padding-top: 2px;
+    color: rgba(255,255,255,0.12);
+  }
+  .feed-pts.hot { color: #f472b6; }
+  .feed-pts.warm { color: #38bdf8; }
+  .feed-body h4 { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7); line-height: 1.5; }
+  .feed-body .fm { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 4px; }
+  .feed-body .fm a { color: #38bdf8; text-decoration: none; }
+  .feed-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: rgba(255,255,255,0.12);
+    padding-top: 3px; white-space: nowrap;
+  }
+
+  /* Right */
+  .sidebar-right {
+    background: rgba(8,10,20,0.8);
+    border-left: 1px solid rgba(56,189,248,0.06);
+    padding: 20px 16px;
+  }
+  .sr-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 2px; color: rgba(255,255,255,0.2);
+    margin-bottom: 16px;
+  }
+
+  .rank-row {
+    display: grid; grid-template-columns: 22px 1fr 36px; gap: 8px;
+    padding: 9px 6px; border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .rank-row:hover { background: rgba(56,189,248,0.03); }
+  .rank-row + .rank-row { border-top: 1px solid rgba(255,255,255,0.02); }
+  .rr-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.1);
+    text-align: center; padding-top: 2px;
+  }
+  .rr-num.g1 { color: #f472b6; }
+  .rr-num.g2 { color: #38bdf8; }
+  .rr-num.g3 { color: #14b8a6; }
+  .rr-info .rr-title { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.3; }
+  .rr-info .rr-meta { font-size: 10px; color: rgba(255,255,255,0.12); margin-top: 2px; }
+  .rr-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700; color: #38bdf8; text-align: right;
+    padding-top: 2px;
+  }
+
+  .separator {
+    height: 1px; margin: 20px 0;
+    background: linear-gradient(90deg, transparent, rgba(20,184,166,0.2), transparent);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>GEEKNEWS<span class="ai">AI</span></h1>
+    <div class="nav-pills">
+      <a href="#" class="active">Feed</a>
+      <a href="#">Top</a>
+      <a href="#">Week</a>
+      <a href="#">Month</a>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sync-status"><span class="sync-dot"></span>synced 10:55</div>
+    <div class="counter">102</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar-left">
+    <div class="sl-header">
+      <h2>Timeline</h2>
+      <span class="count-badge">8 days</span>
+    </div>
+
+    <div class="day-group">
+      <div class="day-label">04.06 MON <span class="today-tag">TODAY</span></div>
+      <div class="tl-item"><div class="tl-pts">9</div><div class="tl-title">Awesome Design.MD - 디자인 시스템</div></div>
+      <div class="tl-item"><div class="tl-pts">4</div><div class="tl-title">rtk - LLM 토큰 절감 프록시</div></div>
+      <div class="tl-item"><div class="tl-pts">3</div><div class="tl-title">모두를 위한 투자</div></div>
+    </div>
+
+    <div class="day-group">
+      <div class="day-label">04.05 SUN</div>
+      <div class="tl-item"><div class="tl-pts hot">80</div><div class="tl-title">LLM-Wiki - 개인 지식저장소</div></div>
+      <div class="tl-item"><div class="tl-pts">12</div><div class="tl-title">Micro Diffusion</div></div>
+      <div class="tl-item"><div class="tl-pts">12</div><div class="tl-title">Mac mini Ollama 설정</div></div>
+      <div class="tl-item"><div class="tl-pts">9</div><div class="tl-title">goose - AI 에이전트</div></div>
+      <div class="tl-item"><div class="tl-pts">7</div><div class="tl-title">Claude Code Linux 취약점</div></div>
+    </div>
+
+    <div class="day-group">
+      <div class="day-label">04.04 SAT</div>
+      <div class="tl-item"><div class="tl-pts warm">30</div><div class="tl-title">엔지니어링 팀 속도 문제</div></div>
+      <div class="tl-item"><div class="tl-pts warm">26</div><div class="tl-title">apfel - Mac AI</div></div>
+      <div class="tl-item"><div class="tl-pts">14</div><div class="tl-title">Gemma 4 가이드</div></div>
+    </div>
+
+    <div class="day-group">
+      <div class="day-label">04.03 FRI</div>
+      <div class="tl-item"><div class="tl-pts warm">43</div><div class="tl-title">AI 아이디어 2026.4</div></div>
+      <div class="tl-item"><div class="tl-pts warm">32</div><div class="tl-title">Whispree - 한국어 STT</div></div>
+      <div class="tl-item"><div class="tl-pts warm">24</div><div class="tl-title">MiroFish 예측 시뮬레이션</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="top-banner">
+      <div class="top-banner-item">
+        <div class="tb-rank">01</div>
+        <div class="tb-label">Week #1</div>
+        <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+        <div class="tb-meta">github.com/chrisryugj | 03.30 | 댓글 10</div>
+        <div class="tb-pts">95</div>
+      </div>
+      <div class="top-banner-item">
+        <div class="tb-rank">02</div>
+        <div class="tb-label">Week #2</div>
+        <h3>법망 - PostgreSQL 기반 한국 법령 전체를 JSON API로</h3>
+        <div class="tb-meta">api.beopmang.org | 03.31 | 댓글 15</div>
+        <div class="tb-pts">89</div>
+      </div>
+    </div>
+
+    <div class="section-label"><span class="accent">></span> Latest Feed</div>
+
+    <div class="feed-item">
+      <div class="feed-pts">9</div>
+      <div class="feed-body"><h4>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</h4><div class="fm"><a>github.com</a> | 댓글 1 | by xguru</div></div>
+      <div class="feed-time">today</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-pts">4</div>
+      <div class="feed-body"><h4>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h4><div class="fm"><a>github.com</a> | 댓글 2</div></div>
+      <div class="feed-time">today</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-pts hot">80</div>
+      <div class="feed-body"><h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h4><div class="fm"><a>gist.github.com</a> | 댓글 8 | by GN+</div></div>
+      <div class="feed-time">1d</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-pts">12</div>
+      <div class="feed-body"><h4>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h4><div class="fm"><a>gist.github.com</a> | 댓글 1</div></div>
+      <div class="feed-time">1d</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-pts">12</div>
+      <div class="feed-body"><h4>Micro Diffusion - 공부를 위한 작은 Diffusion 모델</h4><div class="fm"><a>github.com</a> | 댓글 0 | Show GN</div></div>
+      <div class="feed-time">1d</div>
+    </div>
+    <div class="feed-item">
+      <div class="feed-pts">9</div>
+      <div class="feed-body"><h4>goose - Block이 만든 오픈소스 자율 AI 개발 에이전트</h4><div class="fm"><a>block.github.io</a> | 댓글 1</div></div>
+      <div class="feed-time">1d</div>
+    </div>
+  </div>
+
+  <div class="sidebar-right">
+    <div class="sr-header">Points Ranking</div>
+    <div class="rank-row"><div class="rr-num g1">1</div><div class="rr-info"><div class="rr-title">Korean Law MCP</div><div class="rr-meta">03.30 | c:10</div></div><div class="rr-pts">95</div></div>
+    <div class="rank-row"><div class="rr-num g2">2</div><div class="rr-info"><div class="rr-title">법망 - 에이전트용 API</div><div class="rr-meta">03.31 | c:15</div></div><div class="rr-pts">89</div></div>
+    <div class="rank-row"><div class="rr-num g3">3</div><div class="rr-info"><div class="rr-title">LLM-Wiki</div><div class="rr-meta">04.05 | c:8</div></div><div class="rr-pts">80</div></div>
+    <div class="rank-row"><div class="rr-num">4</div><div class="rr-info"><div class="rr-title">Claude Code 분석서</div><div class="rr-meta">04.01 | c:5</div></div><div class="rr-pts">79</div></div>
+    <div class="rank-row"><div class="rr-num">5</div><div class="rr-info"><div class="rr-title">Claude Code 기능 15가지</div><div class="rr-meta">03.31 | c:6</div></div><div class="rr-pts">71</div></div>
+    <div class="rank-row"><div class="rr-num">6</div><div class="rr-info"><div class="rr-title">Claude Code 내부 해부</div><div class="rr-meta">04.01 | c:1</div></div><div class="rr-pts">49</div></div>
+    <div class="rank-row"><div class="rr-num">7</div><div class="rr-info"><div class="rr-title">AI 아이디어 2026.4</div><div class="rr-meta">04.03 | c:4</div></div><div class="rr-pts">43</div></div>
+
+    <div class="separator"></div>
+    <div class="sr-header">Most Discussed</div>
+    <div class="rank-row"><div class="rr-num g1">1</div><div class="rr-info"><div class="rr-title">claw-code 클린룸 재작성</div><div class="rr-meta">04.01 | 42pts</div></div><div class="rr-pts">52</div></div>
+    <div class="rank-row"><div class="rr-num g2">2</div><div class="rr-info"><div class="rr-title">OpenClaude 200개 모델</div><div class="rr-meta">04.02 | 28pts</div></div><div class="rr-pts">21</div></div>
+    <div class="rank-row"><div class="rr-num g3">3</div><div class="rr-info"><div class="rr-title">옛날 스타일 날씨</div><div class="rr-meta">04.02 | 35pts</div></div><div class="rr-pts">16</div></div>
+  </div>
+</div>
+
+</body>
+</html>

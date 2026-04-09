@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 4 - Product Hunt / Card Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #fafafa; color: #1a1a1a; }
+
+  header { background: #fff; border-bottom: 1px solid #eee; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  header h1 { font-size: 20px; font-weight: 800; }
+  header h1 span { color: #ff6154; }
+  .header-nav { display: flex; gap: 6px; }
+  .header-nav a { padding: 7px 16px; border-radius: 20px; text-decoration: none; color: #666; font-size: 13px; font-weight: 500; border: 1px solid #eee; }
+  .header-nav a.active { background: #ff6154; color: #fff; border-color: #ff6154; }
+  .header-right { font-size: 12px; color: #999; }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 16px; }
+
+  .date-group { margin-bottom: 32px; }
+  .date-label { font-size: 13px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding-left: 4px; }
+
+  .card { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 18px 20px; margin-bottom: 8px; display: flex; align-items: center; gap: 16px; transition: all 0.15s; cursor: pointer; }
+  .card:hover { border-color: #ff6154; box-shadow: 0 4px 12px rgba(255,97,84,0.08); transform: translateY(-1px); }
+
+  .card .vote-box { display: flex; flex-direction: column; align-items: center; min-width: 56px; padding: 8px 0; border: 1px solid #eee; border-radius: 8px; transition: border-color 0.15s; }
+  .card:hover .vote-box { border-color: #ff6154; }
+  .card .vote-box .arrow { font-size: 10px; color: #ff6154; }
+  .card .vote-box .pts { font-size: 16px; font-weight: 800; color: #1a1a1a; }
+
+  .card .info { flex: 1; }
+  .card .info h3 { font-size: 15px; font-weight: 600; line-height: 1.4; color: #1a1a1a; }
+  .card .info .desc { font-size: 13px; color: #888; margin-top: 4px; line-height: 1.4; }
+  .card .info .tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .card .info .tag { font-size: 11px; background: #f5f5f5; color: #666; padding: 2px 8px; border-radius: 4px; }
+  .card .info .tag.hot { background: #fff2f1; color: #ff6154; }
+
+  .card .comment-box { text-align: center; min-width: 50px; }
+  .card .comment-box .c-num { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+  .card .comment-box .c-label { font-size: 10px; color: #bbb; }
+
+  .load-more { display: block; width: 100%; padding: 14px; background: #fff; border: 1px dashed #ddd; border-radius: 12px; text-align: center; color: #999; font-size: 13px; cursor: pointer; margin-top: 16px; }
+  .load-more:hover { border-color: #ff6154; color: #ff6154; }
+
+  footer { text-align: center; padding: 32px; color: #bbb; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Geek<span>News</span></h1>
+  <div class="header-nav">
+    <a href="#" class="active">인기순</a>
+    <a href="#">최신순</a>
+    <a href="#">이번 주</a>
+    <a href="#">오늘</a>
+  </div>
+  <div class="header-right">102개 | 4/6 10:55</div>
+</header>
+
+<div class="container">
+  <div class="date-group">
+    <div class="date-label">Today - 4월 6일 월요일</div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">9</span></div>
+      <div class="info">
+        <h3>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</h3>
+        <div class="desc">유명 사이트들의 디자인 시스템 MD 파일 모음</div>
+        <div class="tags"><span class="tag">github.com</span><span class="tag">design</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">1</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">4</span></div>
+      <div class="info">
+        <h3>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h3>
+        <div class="desc">AI 코딩 도구 CLI 출력을 필터링/압축해 토큰을 대폭 절감</div>
+        <div class="tags"><span class="tag">github.com</span><span class="tag">AI</span><span class="tag">CLI</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">2</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">3</span></div>
+      <div class="info">
+        <h3>모두를 위한 투자 - 흩어진 정보를 한 곳에, AI 분석을 곁들인</h3>
+        <div class="desc">차트 드래그로 기간별 뉴스를 확인할 수 있는 위키형 투자 정보 사이트</div>
+        <div class="tags"><span class="tag">Show GN</span><span class="tag">investing</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">1</div><div class="c-label">댓글</div></div>
+    </div>
+  </div>
+
+  <div class="date-group">
+    <div class="date-label">Yesterday - 4월 5일 일요일</div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">80</span></div>
+      <div class="info">
+        <h3>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h3>
+        <div class="desc">Andrej Karpathy가 코드보다 개인 지식 저장소 구축에 토큰을 더 많이 쓰고 있다고</div>
+        <div class="tags"><span class="tag hot">HOT</span><span class="tag">gist.github.com</span><span class="tag">AI</span><span class="tag">LLM</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">8</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">12</span></div>
+      <div class="info">
+        <h3>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h3>
+        <div class="desc">Apple Silicon Mac에서 로컬 LLM 구성 및 자동 실행 가이드</div>
+        <div class="tags"><span class="tag">gist.github.com</span><span class="tag">LLM</span><span class="tag">Mac</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">1</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">12</span></div>
+      <div class="info">
+        <h3>Micro Diffusion - 공부를 위한 작은 Diffusion 모델</h3>
+        <div class="desc">텍스트 Diffusion 모델을 처음부터 구현한 교육용 프로젝트</div>
+        <div class="tags"><span class="tag">github.com</span><span class="tag">AI</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">0</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">9</span></div>
+      <div class="info">
+        <h3>goose - Block이 만든 오픈소스 자율 AI 개발 에이전트</h3>
+        <div class="desc">프로젝트 생성부터 배포까지 자율 수행하는 로컬 AI 에이전트</div>
+        <div class="tags"><span class="tag">block.github.io</span><span class="tag">AI Agent</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">1</div><div class="c-label">댓글</div></div>
+    </div>
+
+    <div class="card">
+      <div class="vote-box"><span class="arrow">&#9650;</span><span class="pts">7</span></div>
+      <div class="info">
+        <h3>Claude Code가 23년간 숨겨져 있던 Linux 취약점을 발견</h3>
+        <div class="desc">NFS 드라이버 힙 오버플로우 취약점 자동 탐지</div>
+        <div class="tags"><span class="tag">mtlynch.io</span><span class="tag">Security</span></div>
+      </div>
+      <div class="comment-box"><div class="c-num">1</div><div class="c-label">댓글</div></div>
+    </div>
+  </div>
+
+  <button class="load-more">더 보기 (4월 4일 이전 글)</button>
+
+  <footer>
+    GeekNews Reader | 하루 4회 자동 수집 | 총 102개 보관
+  </footer>
+</div>
+
+</body>
+</html>

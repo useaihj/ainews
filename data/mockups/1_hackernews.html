@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 1 - Hacker News Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Verdana', sans-serif; background: #f6f6ef; color: #333; font-size: 13px; }
+
+  header { background: #ff6600; padding: 4px 10px; display: flex; align-items: center; gap: 10px; }
+  header .logo { font-weight: bold; font-size: 16px; color: #000; text-decoration: none; }
+  header nav a { color: #000; text-decoration: none; margin: 0 6px; font-size: 13px; }
+  header nav a.active { font-weight: bold; border-bottom: 2px solid #000; }
+  header .meta { margin-left: auto; color: #000; font-size: 11px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 10px 0; }
+
+  .tabs { background: #fff; border-bottom: 1px solid #ddd; padding: 8px 15px; margin-bottom: 5px; }
+  .tabs a { text-decoration: none; color: #666; padding: 5px 12px; border-radius: 3px; font-size: 12px; }
+  .tabs a.active { background: #ff6600; color: #fff; }
+
+  .item { display: flex; padding: 5px 0; border-bottom: 1px solid #f0f0e8; }
+  .item:hover { background: #fafaf5; }
+  .rank { width: 35px; text-align: right; color: #999; padding-right: 8px; padding-top: 2px; }
+  .vote { width: 20px; padding-top: 2px; }
+  .vote a { color: #999; text-decoration: none; font-size: 10px; cursor: pointer; }
+  .vote a:hover { color: #ff6600; }
+  .content { flex: 1; }
+  .title { font-size: 13px; }
+  .title a { color: #000; text-decoration: none; }
+  .title a:visited { color: #828282; }
+  .title .source { color: #999; font-size: 11px; margin-left: 5px; }
+  .meta-line { color: #999; font-size: 11px; margin-top: 2px; }
+  .meta-line a { color: #999; text-decoration: none; }
+  .meta-line a:hover { text-decoration: underline; }
+  .points { color: #ff6600; font-weight: bold; }
+
+  .date-divider { background: #f0ead6; padding: 6px 15px; font-weight: bold; color: #666; font-size: 12px; margin-top: 10px; border-left: 3px solid #ff6600; }
+
+  footer { text-align: center; padding: 20px; color: #999; font-size: 11px; border-top: 1px solid #ddd; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">GN</a>
+  <nav>
+    <a href="#" class="active">TOP</a>
+    <a href="#">Latest</a>
+    <a href="#">Week</a>
+    <a href="#">Ask</a>
+    <a href="#">Show</a>
+  </nav>
+  <span class="meta">2026-04-06 10:55 수집 | 102개</span>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <a href="#" class="active">이번 주</a>
+    <a href="#">이번 달</a>
+    <a href="#">오늘</a>
+  </div>
+
+  <div class="item">
+    <div class="rank">1.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</a>
+        <span class="source">(github.com/chrisryugj)</span>
+      </div>
+      <div class="meta-line"><span class="points">95점</span> | by GN+ | 7일전 | <a href="#">댓글 10개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">2.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Show GN: 법망 - PostgreSQL 기반 한국 법령 전체를 JSON으로 제공</a>
+        <span class="source">(api.beopmang.org)</span>
+      </div>
+      <div class="meta-line"><span class="points">89점</span> | by xguru | 6일전 | <a href="#">댓글 15개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">3.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</a>
+        <span class="source">(gist.github.com/karpathy)</span>
+      </div>
+      <div class="meta-line"><span class="points">80점</span> | by GN+ | 1일전 | <a href="#">댓글 8개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">4.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Claude Code (유출본) 소스 코드 분석서</a>
+        <span class="source">(wikidocs.net)</span>
+      </div>
+      <div class="meta-line"><span class="points">79점</span> | by GN+ | 5일전 | <a href="#">댓글 5개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">5.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Claude Code의 숨겨진 강력한 기능들 15가지</a>
+        <span class="source">(x.com/bcherny)</span>
+      </div>
+      <div class="meta-line"><span class="points">71점</span> | by xguru | 6일전 | <a href="#">댓글 6개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">6.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Claude Code 내부 동작 방식 완전 해부 — Agentic Loop부터 컨텍스트 로딩까지</a>
+        <span class="source">(mintlify.com)</span>
+      </div>
+      <div class="meta-line"><span class="points">49점</span> | by GN+ | 5일전 | <a href="#">댓글 1개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">7.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">지금 가장 중요한 AI 아이디어들 (2026년 4월)</a>
+        <span class="source">(danielmiessler.com)</span>
+      </div>
+      <div class="meta-line"><span class="points">43점</span> | by GN+ | 3일전 | <a href="#">댓글 4개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">8.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">Hermes Agent — 자기 학습형 자율 AI 에이전트</a>
+        <span class="source">(hermes-agent.nousresearch.com)</span>
+      </div>
+      <div class="meta-line"><span class="points">43점</span> | by GN+ | 4일전 | <a href="#">댓글 2개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">9.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">claw-code - Claude Code 유출 소스 기반 Python 클린룸 재작성</a>
+        <span class="source">(github.com/instructkr)</span>
+      </div>
+      <div class="meta-line"><span class="points">42점</span> | by xguru | 5일전 | <a href="#">댓글 52개</a></div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="rank">10.</div>
+    <div class="vote"><a>▲</a></div>
+    <div class="content">
+      <div class="title">
+        <a href="#">옛날 스타일 날씨</a>
+        <span class="source">(weather.com)</span>
+      </div>
+      <div class="meta-line"><span class="points">35점</span> | by GN+ | 4일전 | <a href="#">댓글 16개</a></div>
+    </div>
+  </div>
+
+  <footer>
+    GeekNews Reader | 마지막 수집: 2026-04-06 10:55 | 하루 4회 자동 수집 (00/06/12/18시)
+  </footer>
+</div>
+
+</body>
+</html>

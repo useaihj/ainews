@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2D - Sci-Fi HUD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: #020308;
+    color: #7ecfdf;
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+
+  /* Animated corner brackets on hover for cards */
+  .bracket-box { position: relative; }
+  .bracket-box::before, .bracket-box::after {
+    content: ''; position: absolute;
+    width: 12px; height: 12px;
+    transition: all 0.3s;
+    opacity: 0;
+  }
+  .bracket-box::before { top: -1px; left: -1px; border-top: 2px solid #00e5ff; border-left: 2px solid #00e5ff; }
+  .bracket-box::after { bottom: -1px; right: -1px; border-bottom: 2px solid #00e5ff; border-right: 2px solid #00e5ff; }
+  .bracket-box:hover::before, .bracket-box:hover::after { opacity: 1; }
+
+  header {
+    position: relative; z-index: 2;
+    background: rgba(2,3,8,0.95);
+    border-bottom: 1px solid rgba(0,229,255,0.15);
+    padding: 0 24px;
+    height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  /* Top accent line */
+  header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #00e5ff 20%, #00e5ff 80%, transparent 100%);
+    opacity: 0.6;
+  }
+
+  .hdr-left { display: flex; align-items: center; gap: 20px; }
+  header h1 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px; color: #00e5ff; letter-spacing: 4px;
+    text-shadow: 0 0 15px rgba(0,229,255,0.3);
+  }
+  .hdr-nav { display: flex; gap: 2px; }
+  .hdr-nav a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; padding: 6px 14px;
+    color: rgba(126,207,223,0.4); text-decoration: none;
+    border: 1px solid transparent;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    transition: all 0.2s;
+  }
+  .hdr-nav a:hover { color: #7ecfdf; background: rgba(0,229,255,0.05); }
+  .hdr-nav a.active {
+    color: #00e5ff;
+    background: rgba(0,229,255,0.1);
+    border-color: rgba(0,229,255,0.2);
+  }
+
+  .hdr-right { display: flex; align-items: center; gap: 20px; }
+  .hdr-clock {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 18px; color: #00e5ff;
+    text-shadow: 0 0 10px rgba(0,229,255,0.4);
+    letter-spacing: 2px;
+  }
+  .hdr-status {
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: rgba(0,229,255,0.5);
+  }
+  .status-ring {
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 1.5px solid #00e5ff;
+    position: relative;
+    animation: ring-pulse 3s infinite;
+  }
+  .status-ring::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 6px #00ff88;
+  }
+  @keyframes ring-pulse { 0%,100% { border-color: rgba(0,229,255,0.8); } 50% { border-color: rgba(0,229,255,0.2); } }
+
+  .layout { position: relative; z-index: 1; display: grid; grid-template-columns: 270px 1fr 290px; min-height: calc(100vh - 52px); }
+
+  /* Left */
+  .panel-left {
+    background: rgba(2,3,12,0.9);
+    border-right: 1px solid rgba(0,229,255,0.08);
+    padding: 16px;
+  }
+  .panel-header {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: rgba(0,229,255,0.4);
+    letter-spacing: 2px; margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(0,229,255,0.08);
+    display: flex; justify-content: space-between;
+  }
+
+  .day-marker {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: #00e5ff; margin-top: 16px; margin-bottom: 8px;
+    padding: 4px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .day-marker .line { flex: 1; height: 1px; background: rgba(0,229,255,0.1); }
+
+  .tl-row {
+    display: grid; grid-template-columns: 32px 1fr; gap: 6px;
+    padding: 6px 8px; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .tl-row:hover { background: rgba(0,229,255,0.03); border-left-color: rgba(0,229,255,0.3); }
+  .tl-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; color: rgba(126,207,223,0.25); text-align: right;
+  }
+  .tl-val.hot { color: #ff3d71; text-shadow: 0 0 6px rgba(255,61,113,0.3); }
+  .tl-val.warm { color: #00e5ff; }
+  .tl-txt { font-size: 11px; color: rgba(126,207,223,0.4); line-height: 1.5; }
+  .tl-row:hover .tl-txt { color: rgba(126,207,223,0.7); }
+
+  /* Main */
+  .panel-main { padding: 24px; background: rgba(2,3,10,0.6); }
+
+  /* Top cards with HUD corners */
+  .top-section { margin-bottom: 32px; }
+  .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .hud-card {
+    background: rgba(0,229,255,0.02);
+    border: 1px solid rgba(0,229,255,0.08);
+    padding: 18px; position: relative;
+    transition: all 0.3s;
+  }
+  .hud-card::before, .hud-card::after {
+    content: ''; position: absolute; width: 16px; height: 16px; transition: all 0.3s; opacity: 0.3;
+  }
+  .hud-card::before { top: -1px; left: -1px; border-top: 2px solid #00e5ff; border-left: 2px solid #00e5ff; }
+  .hud-card::after { bottom: -1px; right: -1px; border-bottom: 2px solid #00e5ff; border-right: 2px solid #00e5ff; }
+  .hud-card:hover { background: rgba(0,229,255,0.04); border-color: rgba(0,229,255,0.2); }
+  .hud-card:hover::before, .hud-card:hover::after { opacity: 1; width: 20px; height: 20px; }
+
+  .hud-card .hc-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; color: #ff3d71; letter-spacing: 2px; margin-bottom: 10px;
+    text-shadow: 0 0 6px rgba(255,61,113,0.3);
+  }
+  .hud-card .hc-tag.alt { color: #00e5ff; text-shadow: 0 0 6px rgba(0,229,255,0.3); }
+  .hud-card h3 { font-size: 14px; font-weight: 600; color: #c8e6ec; line-height: 1.5; }
+  .hud-card .hc-src { font-size: 10px; color: rgba(126,207,223,0.3); margin-top: 6px; }
+  .hud-card .hc-bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 14px; }
+  .hud-card .hc-meta { font-size: 10px; color: rgba(126,207,223,0.2); }
+  .hud-card .hc-pts {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 28px; font-weight: 400; color: #00e5ff;
+    text-shadow: 0 0 20px rgba(0,229,255,0.3);
+    line-height: 1;
+  }
+
+  .section-line {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: rgba(0,229,255,0.3); letter-spacing: 2px;
+    margin: 24px 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-line::before { content: '//'; color: rgba(0,229,255,0.5); }
+  .section-line::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,229,255,0.15), transparent); }
+
+  .feed-row {
+    display: grid; grid-template-columns: 40px 1fr 48px; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid rgba(0,229,255,0.03);
+    transition: all 0.15s;
+  }
+  .feed-row:hover { background: rgba(0,229,255,0.02); margin: 0 -10px; padding: 10px; }
+  .fr-pts {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: rgba(126,207,223,0.2); text-align: right; padding-top: 2px;
+  }
+  .fr-pts.hot { color: #ff3d71; }
+  .fr-pts.warm { color: #00e5ff; }
+  .fr-body h4 { font-size: 13px; font-weight: 500; color: rgba(200,230,236,0.6); line-height: 1.5; }
+  .fr-body .fr-meta { font-size: 10px; color: rgba(126,207,223,0.2); margin-top: 3px; }
+  .fr-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; color: rgba(126,207,223,0.15); text-align: right; padding-top: 3px;
+  }
+
+  /* Right */
+  .panel-right {
+    background: rgba(2,3,12,0.9);
+    border-left: 1px solid rgba(0,229,255,0.08);
+    padding: 16px;
+  }
+
+  .rank-entry {
+    display: grid; grid-template-columns: 24px 1fr 34px; gap: 6px;
+    padding: 8px 4px; border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .rank-entry:hover { background: rgba(0,229,255,0.03); }
+  .rank-entry + .rank-entry { border-top: 1px solid rgba(0,229,255,0.03); }
+  .re-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px; text-align: center; padding-top: 2px;
+    color: rgba(126,207,223,0.15);
+  }
+  .re-num.t1 { color: #ff3d71; text-shadow: 0 0 6px rgba(255,61,113,0.3); }
+  .re-num.t2 { color: #00e5ff; }
+  .re-num.t3 { color: #00ff88; }
+  .re-info .re-title { font-size: 11px; color: rgba(126,207,223,0.45); line-height: 1.3; }
+  .re-info .re-meta { font-size: 9px; color: rgba(126,207,223,0.15); margin-top: 2px; }
+  .re-pts {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px; color: #00e5ff; text-align: right; padding-top: 2px;
+  }
+
+  .sep { height: 1px; margin: 20px 0; background: linear-gradient(90deg, transparent, rgba(0,229,255,0.15), transparent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <h1>GEEKNEWS</h1>
+    <div class="hdr-nav">
+      <a href="#" class="active">FEED</a>
+      <a href="#">TOP</a>
+      <a href="#">WEEKLY</a>
+      <a href="#">ARCHIVE</a>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-status"><div class="status-ring"></div>ONLINE</div>
+    <div class="hdr-clock">10:55:00</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="panel-left">
+    <div class="panel-header"><span>TIMELINE</span><span>102 ENTRIES</span></div>
+
+    <div class="day-marker">04.06 <span class="line"></span> TODAY</div>
+    <div class="tl-row"><div class="tl-val">9</div><div class="tl-txt">Awesome Design.MD</div></div>
+    <div class="tl-row"><div class="tl-val">4</div><div class="tl-txt">rtk - LLM 토큰 절감</div></div>
+    <div class="tl-row"><div class="tl-val">3</div><div class="tl-txt">모두를 위한 투자</div></div>
+
+    <div class="day-marker">04.05 <span class="line"></span> SUN</div>
+    <div class="tl-row"><div class="tl-val hot">80</div><div class="tl-txt">LLM-Wiki - 지식저장소</div></div>
+    <div class="tl-row"><div class="tl-val">12</div><div class="tl-txt">Micro Diffusion</div></div>
+    <div class="tl-row"><div class="tl-val">12</div><div class="tl-txt">Mac Ollama Gemma 설정</div></div>
+    <div class="tl-row"><div class="tl-val">9</div><div class="tl-txt">goose AI 에이전트</div></div>
+    <div class="tl-row"><div class="tl-val">7</div><div class="tl-txt">Claude Code 취약점</div></div>
+
+    <div class="day-marker">04.04 <span class="line"></span> SAT</div>
+    <div class="tl-row"><div class="tl-val warm">30</div><div class="tl-txt">엔지니어링 팀 코드베이스</div></div>
+    <div class="tl-row"><div class="tl-val warm">26</div><div class="tl-txt">apfel Mac AI</div></div>
+    <div class="tl-row"><div class="tl-val">14</div><div class="tl-txt">Gemma 4 가이드</div></div>
+  </div>
+
+  <div class="panel-main">
+    <div class="panel-header" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,229,255,0.4);letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(0,229,255,0.08);display:flex;justify-content:space-between;"><span>WEEKLY HOT</span><span>TOP 4</span></div>
+
+    <div class="top-grid">
+      <div class="hud-card">
+        <div class="hc-tag">RANK 01</div>
+        <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+        <div class="hc-src">github.com/chrisryugj</div>
+        <div class="hc-bottom"><div class="hc-meta">03.30 | 댓글 10</div><div class="hc-pts">95</div></div>
+      </div>
+      <div class="hud-card">
+        <div class="hc-tag">RANK 02</div>
+        <h3>법망 - PostgreSQL 기반 한국 법령 전체 JSON API</h3>
+        <div class="hc-src">api.beopmang.org</div>
+        <div class="hc-bottom"><div class="hc-meta">03.31 | 댓글 15</div><div class="hc-pts">89</div></div>
+      </div>
+      <div class="hud-card">
+        <div class="hc-tag alt">RANK 03</div>
+        <h3>LLM-Wiki - LLM으로 개인 지식저장소 구축</h3>
+        <div class="hc-src">gist.github.com/karpathy</div>
+        <div class="hc-bottom"><div class="hc-meta">04.05 | 댓글 8</div><div class="hc-pts">80</div></div>
+      </div>
+      <div class="hud-card">
+        <div class="hc-tag alt">RANK 04</div>
+        <h3>Claude Code (유출본) 소스 코드 분석서</h3>
+        <div class="hc-src">wikidocs.net</div>
+        <div class="hc-bottom"><div class="hc-meta">04.01 | 댓글 5</div><div class="hc-pts">79</div></div>
+      </div>
+    </div>
+
+    <div class="section-line">LATEST FEED</div>
+
+    <div class="feed-row"><div class="fr-pts">9</div><div class="fr-body"><h4>Awesome Design.MD - 유명 웹사이트 디자인 시스템</h4><div class="fr-meta">github.com | 댓글 1</div></div><div class="fr-time">TODAY</div></div>
+    <div class="feed-row"><div class="fr-pts">4</div><div class="fr-body"><h4>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h4><div class="fr-meta">github.com | 댓글 2</div></div><div class="fr-time">TODAY</div></div>
+    <div class="feed-row"><div class="fr-pts hot">80</div><div class="fr-body"><h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축</h4><div class="fr-meta">gist.github.com | 댓글 8</div></div><div class="fr-time">1D</div></div>
+    <div class="feed-row"><div class="fr-pts">12</div><div class="fr-body"><h4>Mac mini Ollama + Gemma 4 26B 설정 요약</h4><div class="fr-meta">gist.github.com | 댓글 1</div></div><div class="fr-time">1D</div></div>
+    <div class="feed-row"><div class="fr-pts">12</div><div class="fr-body"><h4>Micro Diffusion - 공부를 위한 작은 Diffusion 모델</h4><div class="fr-meta">github.com | Show GN</div></div><div class="fr-time">1D</div></div>
+    <div class="feed-row"><div class="fr-pts">9</div><div class="fr-body"><h4>goose - Block의 오픈소스 자율 AI 개발 에이전트</h4><div class="fr-meta">block.github.io | 댓글 1</div></div><div class="fr-time">1D</div></div>
+  </div>
+
+  <div class="panel-right">
+    <div class="panel-header" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,229,255,0.4);letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(0,229,255,0.08);"><span>RANKINGS</span></div>
+
+    <div class="rank-entry"><div class="re-num t1">01</div><div class="re-info"><div class="re-title">Korean Law MCP</div><div class="re-meta">03.30 | c:10</div></div><div class="re-pts">95</div></div>
+    <div class="rank-entry"><div class="re-num t2">02</div><div class="re-info"><div class="re-title">법망 - 에이전트 API</div><div class="re-meta">03.31 | c:15</div></div><div class="re-pts">89</div></div>
+    <div class="rank-entry"><div class="re-num t3">03</div><div class="re-info"><div class="re-title">LLM-Wiki</div><div class="re-meta">04.05 | c:8</div></div><div class="re-pts">80</div></div>
+    <div class="rank-entry"><div class="re-num">04</div><div class="re-info"><div class="re-title">Claude Code 분석서</div><div class="re-meta">04.01 | c:5</div></div><div class="re-pts">79</div></div>
+    <div class="rank-entry"><div class="re-num">05</div><div class="re-info"><div class="re-title">Claude Code 기능 15가지</div><div class="re-meta">03.31 | c:6</div></div><div class="re-pts">71</div></div>
+    <div class="rank-entry"><div class="re-num">06</div><div class="re-info"><div class="re-title">Claude Code 내부 해부</div><div class="re-meta">04.01 | c:1</div></div><div class="re-pts">49</div></div>
+    <div class="rank-entry"><div class="re-num">07</div><div class="re-info"><div class="re-title">AI 아이디어 2026.4</div><div class="re-meta">04.03 | c:4</div></div><div class="re-pts">43</div></div>
+
+    <div class="sep"></div>
+    <div class="panel-header" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,229,255,0.4);letter-spacing:2px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(0,229,255,0.08);"><span>DISCUSSIONS</span></div>
+    <div class="rank-entry"><div class="re-num t1">01</div><div class="re-info"><div class="re-title">claw-code 클린룸</div><div class="re-meta">04.01 | 42pts</div></div><div class="re-pts">52</div></div>
+    <div class="rank-entry"><div class="re-num t2">02</div><div class="re-info"><div class="re-title">OpenClaude 200개 모델</div><div class="re-meta">04.02 | 28pts</div></div><div class="re-pts">21</div></div>
+    <div class="rank-entry"><div class="re-num t3">03</div><div class="re-info"><div class="re-title">옛날 스타일 날씨</div><div class="re-meta">04.02 | 35pts</div></div><div class="re-pts">16</div></div>
+  </div>
+</div>
+
+</body>
+</html>

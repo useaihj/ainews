@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 5 - Brutalist / Minimal Reader</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'IBM Plex Mono', 'Consolas', monospace; background: #fff; color: #111; font-size: 14px; line-height: 1.8; }
+
+  .page { max-width: 720px; margin: 0 auto; padding: 40px 20px; }
+
+  header { margin-bottom: 40px; }
+  header h1 { font-size: 14px; font-weight: 400; color: #999; text-transform: uppercase; letter-spacing: 3px; }
+  header .title { font-size: 32px; font-weight: 700; color: #111; margin-top: 4px; }
+  header .sub { font-size: 13px; color: #999; margin-top: 8px; border-bottom: 2px solid #111; padding-bottom: 16px; }
+
+  .filters { display: flex; gap: 24px; margin-bottom: 32px; font-size: 13px; }
+  .filters a { color: #999; text-decoration: none; }
+  .filters a.active { color: #111; font-weight: 700; border-bottom: 2px solid #111; padding-bottom: 2px; }
+  .filters a:hover { color: #111; }
+
+  .day-block { margin-bottom: 40px; }
+  .day-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #eee; padding-bottom: 6px; margin-bottom: 12px; }
+  .day-header .date { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #111; }
+  .day-header .count { font-size: 11px; color: #bbb; }
+
+  .entry { display: grid; grid-template-columns: 44px 1fr; gap: 0; padding: 6px 0; border-bottom: 1px solid #f7f7f7; }
+  .entry:hover { background: #fafafa; }
+  .entry .pts { font-size: 13px; color: #bbb; text-align: right; padding-right: 16px; padding-top: 1px; font-variant-numeric: tabular-nums; }
+  .entry .pts.hot { color: #e11d48; font-weight: 700; }
+  .entry .pts.warm { color: #f59e0b; font-weight: 600; }
+  .entry .body {}
+  .entry .body a { color: #111; text-decoration: none; font-weight: 500; }
+  .entry .body a:hover { text-decoration: underline; }
+  .entry .body .src { color: #bbb; font-size: 12px; font-weight: 400; }
+  .entry .body .meta { font-size: 11px; color: #ccc; }
+
+  .separator { height: 40px; }
+
+  .top-section { background: #f8f8f8; padding: 24px; margin-bottom: 40px; border: 1px solid #eee; }
+  .top-section h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #999; margin-bottom: 16px; }
+  .top-item { display: flex; align-items: baseline; gap: 12px; padding: 4px 0; }
+  .top-item .rank { font-size: 18px; font-weight: 800; color: #ddd; min-width: 28px; }
+  .top-item .rank.r1 { color: #e11d48; }
+  .top-item .rank.r2 { color: #f59e0b; }
+  .top-item .rank.r3 { color: #999; }
+  .top-item .t-title { font-size: 13px; font-weight: 500; flex: 1; }
+  .top-item .t-pts { font-size: 13px; color: #999; font-variant-numeric: tabular-nums; }
+
+  footer { margin-top: 60px; padding-top: 20px; border-top: 2px solid #111; font-size: 11px; color: #bbb; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <h1>GeekNews</h1>
+    <div class="title">Daily Reader</div>
+    <div class="sub">2026-04-06 MON | 수집 10:55 | 102 articles</div>
+  </header>
+
+  <div class="filters">
+    <a href="#" class="active">최신순</a>
+    <a href="#">포인트순</a>
+    <a href="#">이번 주</a>
+    <a href="#">이번 달</a>
+  </div>
+
+  <!-- Top 5 -->
+  <div class="top-section">
+    <h2>This Week Top 5</h2>
+    <div class="top-item"><span class="rank r1">01</span><span class="t-title">Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</span><span class="t-pts">95</span></div>
+    <div class="top-item"><span class="rank r2">02</span><span class="t-title">법망 - PostgreSQL 기반 한국 법령 JSON API</span><span class="t-pts">89</span></div>
+    <div class="top-item"><span class="rank r3">03</span><span class="t-title">LLM-Wiki - 개인 지식저장소 구축</span><span class="t-pts">80</span></div>
+    <div class="top-item"><span class="rank">04</span><span class="t-title">Claude Code (유출본) 소스 코드 분석서</span><span class="t-pts">79</span></div>
+    <div class="top-item"><span class="rank">05</span><span class="t-title">Claude Code의 숨겨진 강력한 기능들 15가지</span><span class="t-pts">71</span></div>
+  </div>
+
+  <!-- Today -->
+  <div class="day-block">
+    <div class="day-header">
+      <span class="date">2026-04-06 Mon</span>
+      <span class="count">6 articles</span>
+    </div>
+    <div class="entry">
+      <div class="pts">9</div>
+      <div class="body">
+        <a href="#">Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</a> <span class="src">github.com</span>
+        <div class="meta">댓글 1</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">4</div>
+      <div class="body">
+        <a href="#">rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</a> <span class="src">github.com</span>
+        <div class="meta">댓글 2</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">3</div>
+      <div class="body">
+        <a href="#">모두를 위한 투자 - 흩어진 정보를 한 곳에</a> <span class="src">investing-for-everyone.com</span>
+        <div class="meta">댓글 1 | Show GN</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">2</div>
+      <div class="body">
+        <a href="#">Google AI Edge Gallery - 오프라인 LLM 갤러리 앱</a> <span class="src">github.com</span>
+        <div class="meta">댓글 1</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Yesterday -->
+  <div class="day-block">
+    <div class="day-header">
+      <span class="date">2026-04-05 Sun</span>
+      <span class="count">14 articles</span>
+    </div>
+    <div class="entry">
+      <div class="pts hot">80</div>
+      <div class="body">
+        <a href="#">LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</a> <span class="src">gist.github.com</span>
+        <div class="meta">댓글 8</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">12</div>
+      <div class="body">
+        <a href="#">Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</a> <span class="src">gist.github.com</span>
+        <div class="meta">댓글 1</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">12</div>
+      <div class="body">
+        <a href="#">Micro Diffusion - 공부를 위한 작은 Diffusion 모델</a> <span class="src">github.com</span>
+        <div class="meta">댓글 0 | Show GN</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">9</div>
+      <div class="body">
+        <a href="#">goose - Block이 만든 오픈소스 자율 AI 개발 에이전트</a> <span class="src">block.github.io</span>
+        <div class="meta">댓글 1</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">7</div>
+      <div class="body">
+        <a href="#">Claude Code가 23년간 숨겨져 있던 Linux 취약점을 발견</a> <span class="src">mtlynch.io</span>
+        <div class="meta">댓글 1</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">5</div>
+      <div class="body">
+        <a href="#">Z-Image 추론을 20~30% 가속하는 ComfyUI 커스텀 노드</a> <span class="src">github.com</span>
+        <div class="meta">댓글 0 | Show GN</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">3</div>
+      <div class="body">
+        <a href="#">AgentNews — 에이전트를 위한 해커뉴스</a> <span class="src">agentne.ws</span>
+        <div class="meta">댓글 0</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">3</div>
+      <div class="body">
+        <a href="#">SaaS 종말론에 대한 반론</a> <span class="src">a16z.news</span>
+        <div class="meta">댓글 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2 days ago -->
+  <div class="day-block">
+    <div class="day-header">
+      <span class="date">2026-04-04 Sat</span>
+      <span class="count">13 articles</span>
+    </div>
+    <div class="entry">
+      <div class="pts warm">30</div>
+      <div class="body">
+        <a href="#">당신의 엔지니어링 팀이 느린 진짜 이유는 사람이 아니라 코드베이스다</a> <span class="src">piechowski.io</span>
+        <div class="meta">댓글 4</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts warm">26</div>
+      <div class="body">
+        <a href="#">apfel - Mac에 이미 내장된 무료 AI를 활용하게 해주는 도구</a> <span class="src">apfel.franzai.com</span>
+        <div class="meta">댓글 5</div>
+      </div>
+    </div>
+    <div class="entry">
+      <div class="pts">14</div>
+      <div class="body">
+        <a href="#">Gemma 4 비주얼 가이드</a> <span class="src">newsletter.maartengrootendorst.com</span>
+        <div class="meta">댓글 0</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    GeekNews Daily Reader<br>
+    수집: 00:00 / 06:00 / 12:00 / 18:00 (1일 4회)<br>
+    보관: 30일 | 현재 102개
+  </footer>
+</div>
+
+</body>
+</html>

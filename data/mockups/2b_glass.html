@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2B - Glassmorphism / Holographic</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0c0c1d;
+    color: #e0e0f0;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* Animated gradient blobs */
+  .bg-blob {
+    position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.4; z-index: 0;
+    animation: float 15s ease-in-out infinite;
+  }
+  .blob1 { width: 500px; height: 500px; background: #6366f1; top: -100px; left: -100px; }
+  .blob2 { width: 400px; height: 400px; background: #a855f7; bottom: -50px; right: -50px; animation-delay: -5s; }
+  .blob3 { width: 300px; height: 300px; background: #3b82f6; top: 40%; left: 50%; animation-delay: -10s; }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.05); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+  }
+
+  header {
+    position: relative; z-index: 1;
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(30px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  header h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 .accent {
+    background: linear-gradient(135deg, #818cf8, #c084fc, #f472b6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .header-stats { display: flex; gap: 20px; }
+  .stat { text-align: center; }
+  .stat .num {
+    font-size: 18px; font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat .label { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1px; }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2);
+    padding: 4px 12px; border-radius: 20px; font-size: 11px; color: #22c55e;
+  }
+  .live-badge::before {
+    content: ''; width: 6px; height: 6px; background: #22c55e; border-radius: 50%;
+    box-shadow: 0 0 6px #22c55e;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .layout { position: relative; z-index: 1; display: grid; grid-template-columns: 270px 1fr 290px; min-height: calc(100vh - 56px); gap: 1px; }
+
+  /* Glass panels */
+  .glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+  }
+
+  .sidebar-left { padding: 20px; border-right: 1px solid rgba(255,255,255,0.05); }
+  .sidebar-left h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+
+  .timeline-date {
+    font-size: 11px; font-weight: 700; margin-top: 20px; margin-bottom: 10px;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .timeline-item {
+    padding: 8px 12px;
+    border-left: 2px solid rgba(255,255,255,0.05);
+    margin-left: 4px; margin-bottom: 2px;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .timeline-item:hover {
+    border-left-color: #818cf8;
+    background: rgba(129,140,248,0.05);
+  }
+  .timeline-item .t-title { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; font-weight: 400; }
+  .timeline-item:hover .t-title { color: rgba(255,255,255,0.8); }
+  .timeline-item .t-meta { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 3px; }
+
+  /* Main */
+  .main { padding: 24px; }
+
+  .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.25); margin-bottom: 16px; }
+
+  .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 36px; }
+  .top-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .top-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(129,140,248,0.3);
+    box-shadow: 0 8px 32px rgba(99,102,241,0.1);
+    transform: translateY(-2px);
+  }
+  .top-card .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 8px; font-size: 12px; font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .top-card .rank-badge.r1 { background: linear-gradient(135deg, #f472b6, #c084fc); color: #fff; }
+  .top-card .rank-badge.r2 { background: linear-gradient(135deg, #818cf8, #6366f1); color: #fff; }
+  .top-card .rank-badge.r3 { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+  .top-card h3 { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.9); line-height: 1.5; }
+  .top-card .source { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 6px; }
+  .top-card .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+  .top-card .card-bottom span { font-size: 11px; color: rgba(255,255,255,0.25); }
+  .top-card .pts {
+    font-size: 24px; font-weight: 800;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .list-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 12px; border-radius: 12px;
+    transition: all 0.2s; margin: 0 -12px;
+  }
+  .list-item:hover { background: rgba(255,255,255,0.03); }
+  .list-item + .list-item { border-top: 1px solid rgba(255,255,255,0.03); }
+  .list-num { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.08); min-width: 28px; }
+  .list-content h4 { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; font-weight: 500; }
+  .list-content .lm { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 4px; }
+  .list-content .lm .hl { color: #818cf8; font-weight: 600; }
+
+  /* Sidebar Right */
+  .sidebar-right { padding: 20px; border-left: 1px solid rgba(255,255,255,0.05); }
+  .sidebar-right h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+
+  .rank-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 8px; border-radius: 8px;
+    transition: background 0.2s;
+  }
+  .rank-item:hover { background: rgba(255,255,255,0.03); }
+  .rank-item + .rank-item { border-top: 1px solid rgba(255,255,255,0.03); }
+  .rank-pos {
+    font-size: 12px; font-weight: 800; min-width: 24px; text-align: center;
+    color: rgba(255,255,255,0.15);
+  }
+  .rank-pos.p1 { background: linear-gradient(135deg, #f472b6, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 14px; }
+  .rank-pos.p2 { color: #818cf8; }
+  .rank-pos.p3 { color: #a78bfa; }
+  .rank-info { flex: 1; }
+  .rank-info .r-title { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.3; }
+  .rank-info .r-meta { font-size: 10px; color: rgba(255,255,255,0.15); margin-top: 2px; }
+  .rank-pts {
+    font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, #818cf8, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(129,140,248,0.2), transparent); margin: 24px 0; }
+</style>
+</head>
+<body>
+
+<div class="bg-blob blob1"></div>
+<div class="bg-blob blob2"></div>
+<div class="bg-blob blob3"></div>
+
+<header>
+  <h1>GeekNews <span class="accent">Reader</span></h1>
+  <div class="live-badge">Synced 10:55</div>
+  <div class="header-stats">
+    <div class="stat"><div class="num">102</div><div class="label">Articles</div></div>
+    <div class="stat"><div class="num">+6</div><div class="label">Today</div></div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar-left glass">
+    <h2>Timeline</h2>
+    <div class="timeline-date">2026.04.06 Mon - Today</div>
+    <div class="timeline-item"><div class="t-title">Awesome Design.MD - 디자인 시스템</div><div class="t-meta">9pts | c:1</div></div>
+    <div class="timeline-item"><div class="t-title">rtk - LLM 토큰 절감 CLI 프록시</div><div class="t-meta">4pts | c:2</div></div>
+    <div class="timeline-item"><div class="t-title">Google AI Edge Gallery</div><div class="t-meta">2pts | c:1</div></div>
+
+    <div class="timeline-date">2026.04.05 Sun</div>
+    <div class="timeline-item"><div class="t-title">LLM-Wiki - 개인 지식저장소</div><div class="t-meta">80pts | c:8</div></div>
+    <div class="timeline-item"><div class="t-title">Micro Diffusion - 교육용 모델</div><div class="t-meta">12pts | c:0</div></div>
+    <div class="timeline-item"><div class="t-title">goose - 자율 AI 에이전트</div><div class="t-meta">9pts | c:1</div></div>
+    <div class="timeline-item"><div class="t-title">Claude Code Linux 취약점</div><div class="t-meta">7pts | c:1</div></div>
+
+    <div class="timeline-date">2026.04.04 Sat</div>
+    <div class="timeline-item"><div class="t-title">엔지니어링 팀 속도 문제</div><div class="t-meta">30pts | c:4</div></div>
+    <div class="timeline-item"><div class="t-title">apfel - Mac AI 활용</div><div class="t-meta">26pts | c:5</div></div>
+  </div>
+
+  <div class="main glass">
+    <div class="section-title">Hot this week</div>
+    <div class="top-grid">
+      <div class="top-card">
+        <span class="rank-badge r1">1</span>
+        <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+        <div class="source">github.com/chrisryugj</div>
+        <div class="card-bottom"><span>03.30 | 댓글 10</span><span class="pts">95</span></div>
+      </div>
+      <div class="top-card">
+        <span class="rank-badge r1">2</span>
+        <h3>법망 - PostgreSQL 기반 한국 법령 전체를 JSON API로</h3>
+        <div class="source">api.beopmang.org</div>
+        <div class="card-bottom"><span>03.31 | 댓글 15</span><span class="pts">89</span></div>
+      </div>
+      <div class="top-card">
+        <span class="rank-badge r2">3</span>
+        <h3>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축</h3>
+        <div class="source">gist.github.com/karpathy</div>
+        <div class="card-bottom"><span>04.05 | 댓글 8</span><span class="pts">80</span></div>
+      </div>
+      <div class="top-card">
+        <span class="rank-badge r3">4</span>
+        <h3>Claude Code (유출본) 소스 코드 분석서</h3>
+        <div class="source">wikidocs.net</div>
+        <div class="card-bottom"><span>04.01 | 댓글 5</span><span class="pts">79</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent</div>
+    <div class="list-item"><div class="list-num">01</div><div class="list-content"><h4>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용</h4><div class="lm"><span class="hl">9</span>pts | 댓글 1 | github.com | today</div></div></div>
+    <div class="list-item"><div class="list-num">02</div><div class="list-content"><h4>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h4><div class="lm"><span class="hl">4</span>pts | 댓글 2 | github.com | today</div></div></div>
+    <div class="list-item"><div class="list-num">03</div><div class="list-content"><h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h4><div class="lm"><span class="hl">80</span>pts | 댓글 8 | gist.github.com | 1d ago</div></div></div>
+    <div class="list-item"><div class="list-num">04</div><div class="list-content"><h4>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h4><div class="lm"><span class="hl">12</span>pts | 댓글 1 | gist.github.com | 1d ago</div></div></div>
+    <div class="list-item"><div class="list-num">05</div><div class="list-content"><h4>goose - Block이 만든 오픈소스 자율 AI 개발 에이전트</h4><div class="lm"><span class="hl">9</span>pts | 댓글 1 | block.github.io | 1d ago</div></div></div>
+  </div>
+
+  <div class="sidebar-right glass">
+    <h2>Points Ranking</h2>
+    <div class="rank-item"><div class="rank-pos p1">1</div><div class="rank-info"><div class="r-title">Korean Law MCP</div><div class="r-meta">03.30 | c:10</div></div><div class="rank-pts">95</div></div>
+    <div class="rank-item"><div class="rank-pos p2">2</div><div class="rank-info"><div class="r-title">법망 - 에이전트용 API</div><div class="r-meta">03.31 | c:15</div></div><div class="rank-pts">89</div></div>
+    <div class="rank-item"><div class="rank-pos p3">3</div><div class="rank-info"><div class="r-title">LLM-Wiki - 지식저장소</div><div class="r-meta">04.05 | c:8</div></div><div class="rank-pts">80</div></div>
+    <div class="rank-item"><div class="rank-pos">4</div><div class="rank-info"><div class="r-title">Claude Code 분석서</div><div class="r-meta">04.01 | c:5</div></div><div class="rank-pts">79</div></div>
+    <div class="rank-item"><div class="rank-pos">5</div><div class="rank-info"><div class="r-title">Claude Code 기능 15가지</div><div class="r-meta">03.31 | c:6</div></div><div class="rank-pts">71</div></div>
+    <div class="rank-item"><div class="rank-pos">6</div><div class="rank-info"><div class="r-title">Claude Code 내부 해부</div><div class="r-meta">04.01 | c:1</div></div><div class="rank-pts">49</div></div>
+    <div class="rank-item"><div class="rank-pos">7</div><div class="rank-info"><div class="r-title">AI 아이디어 2026.4</div><div class="r-meta">04.03 | c:4</div></div><div class="rank-pts">43</div></div>
+
+    <div class="divider"></div>
+    <h2>Most Discussed</h2>
+    <div class="rank-item"><div class="rank-pos p1">1</div><div class="rank-info"><div class="r-title">claw-code 클린룸 재작성</div><div class="r-meta">04.01 | 42pts</div></div><div class="rank-pts">52</div></div>
+    <div class="rank-item"><div class="rank-pos p2">2</div><div class="rank-info"><div class="r-title">OpenClaude 200개 모델</div><div class="r-meta">04.02 | 28pts</div></div><div class="rank-pts">21</div></div>
+    <div class="rank-item"><div class="rank-pos p3">3</div><div class="rank-info"><div class="r-title">옛날 스타일 날씨</div><div class="r-meta">04.02 | 35pts</div></div><div class="rank-pts">16</div></div>
+  </div>
+</div>
+
+</body>
+</html>

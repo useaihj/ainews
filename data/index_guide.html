@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GeekNews AI Reader</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  /* ===== DESIGN TOKENS ===== */
+  :root {
+    /* Surfaces - near-black with blue tint */
+    --bg-root: #06080e;
+    --bg-surface-1: #0b0e17;
+    --bg-surface-2: #10141f;
+    --bg-surface-3: #161b29;
+    --bg-hover: rgba(100,200,255,0.03);
+
+    /* Borders - white at low opacity */
+    --border-subtle: rgba(255,255,255,0.04);
+    --border-default: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.12);
+
+    /* Text - readability tuned */
+    --text-primary: #f0f2f5;
+    --text-secondary: #a8b2c4;
+    --text-tertiary: #6b7a90;
+    --text-muted: #3a4560;
+
+    /* Accents */
+    --accent-cyan: #00d4ff;
+    --accent-magenta: #d946ef;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --accent-red: #ef4444;
+
+    /* Glows */
+    --glow-cyan: rgba(0,212,255,0.15);
+    --glow-magenta: rgba(217,70,239,0.15);
+
+    /* Spacing - 8px grid */
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+    --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+    --sp-12: 48px; --sp-16: 64px;
+
+    /* Radius */
+    --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
+
+    /* Transitions */
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+  }
+
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-root);
+    color: var(--text-secondary);
+    font-size: 14px;
+    line-height: 1.55;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture for depth */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* Ambient glow */
+  .ambient-glow {
+    position: fixed; border-radius: 50%; filter: blur(150px); pointer-events: none; z-index: 0;
+  }
+  .glow-1 { width: 600px; height: 600px; background: var(--accent-cyan); opacity: 0.03; top: -200px; left: 10%; }
+  .glow-2 { width: 500px; height: 500px; background: var(--accent-magenta); opacity: 0.025; bottom: -150px; right: 5%; }
+
+  /* Mono numbers */
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    height: 52px;
+    background: rgba(6,8,14,0.85);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex; align-items: center;
+    padding: 0 var(--sp-6);
+  }
+
+  /* Animated top accent line */
+  header::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      var(--accent-cyan) 30%,
+      var(--accent-magenta) 70%,
+      transparent 100%
+    );
+    opacity: 0.5;
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: var(--sp-3);
+    margin-right: var(--sp-10);
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono'; font-weight: 700; font-size: 12px; color: #fff;
+    box-shadow: 0 0 20px var(--glow-cyan), 0 0 20px var(--glow-magenta);
+  }
+  .logo-text {
+    font-weight: 700; font-size: 15px; color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+  .logo-text span { color: var(--text-tertiary); font-weight: 400; }
+
+  /* Nav tabs */
+  .nav-tabs { display: flex; gap: var(--sp-1); height: 100%; align-items: stretch; }
+  .nav-tabs a {
+    display: flex; align-items: center;
+    padding: 0 var(--sp-4);
+    font-size: 12px; font-weight: 500;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color var(--duration-fast) var(--ease-out);
+  }
+  .nav-tabs a:hover { color: var(--text-secondary); }
+  .nav-tabs a.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-cyan);
+  }
+
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: var(--sp-6); }
+  .sync-indicator {
+    display: flex; align-items: center; gap: var(--sp-2);
+    font-size: 11px; color: var(--text-tertiary);
+  }
+  .sync-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-green);
+    box-shadow: 0 0 8px rgba(16,185,129,0.6);
+    animation: sync-pulse 3s ease-in-out infinite;
+  }
+  @keyframes sync-pulse { 0%,100% { opacity: 1; box-shadow: 0 0 8px rgba(16,185,129,0.6); } 50% { opacity: 0.5; box-shadow: 0 0 3px rgba(16,185,129,0.3); } }
+  .article-count { font-family: 'JetBrains Mono'; font-size: 14px; font-weight: 600; color: var(--text-primary); }
+
+  /* ===== LAYOUT ===== */
+  .layout {
+    position: relative; z-index: 1;
+    display: grid;
+    grid-template-columns: 264px 1fr 296px;
+    min-height: calc(100vh - 52px);
+  }
+
+  /* ===== LEFT PANEL ===== */
+  .panel-left {
+    background: var(--bg-surface-1);
+    border-right: 1px solid var(--border-subtle);
+    padding: var(--sp-4);
+    display: flex; flex-direction: column; gap: var(--sp-4);
+  }
+  .panel-title {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-tertiary);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-title .badge {
+    font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 500;
+    color: var(--accent-cyan); background: rgba(0,212,255,0.08);
+    padding: 2px 6px; border-radius: 4px;
+  }
+
+  /* Section card - reusable panel container */
+  .section-card {
+    background: var(--bg-surface-2);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius-md);
+    padding: var(--sp-4) var(--sp-5);
+    transition: border-color var(--duration-normal) var(--ease-out),
+                box-shadow var(--duration-normal) var(--ease-out),
+                transform var(--duration-normal) var(--ease-out);
+  }
+  .section-card:hover {
+    border-color: rgba(0,212,255,0.35);
+    box-shadow: 0 0 24px rgba(0,212,255,0.06), 0 4px 16px rgba(0,0,0,0.25);
+    transform: translateY(-2px);
+  }
+
+  /* Week Heatmap */
+  .heatmap { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); align-items: flex-end; min-height: 90px; }
+  .heatmap-day {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--sp-1);
+  }
+  .heatmap-bar {
+    width: 100%; border-radius: 4px;
+    transition: all var(--duration-normal) var(--ease-out);
+    cursor: pointer;
+    min-height: 8px;
+  }
+  .heatmap-bar:hover { filter: brightness(1.4); transform: scaleY(1.08); }
+  .heatmap-label { font-family: 'JetBrains Mono'; font-size: 9px; color: var(--text-secondary); margin-top: var(--sp-1); }
+  .heatmap-count { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-primary); font-weight: 600; margin-top: 2px; }
+
+  /* Day groups in timeline */
+  .day-group { margin-top: var(--sp-2); }
+  .day-header {
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    padding: var(--sp-2) 0;
+    display: flex; align-items: center; gap: var(--sp-2);
+  }
+  .day-header .today {
+    font-family: 'JetBrains Mono'; font-size: 9px; font-weight: 600;
+    color: var(--accent-cyan); background: rgba(0,212,255,0.1);
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .day-header::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+
+  .tl-item {
+    display: grid; grid-template-columns: 32px 1fr; gap: var(--sp-2);
+    padding: var(--sp-2) var(--sp-2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+  .tl-item:hover { background: var(--bg-hover); }
+  .tl-pts {
+    font-family: 'JetBrains Mono'; font-size: 11px;
+    color: var(--text-muted); text-align: right; padding-top: 1px;
+    font-weight: 500;
+  }
+  .tl-pts[data-heat="3"] { color: var(--accent-cyan); }
+  .tl-pts[data-heat="2"] { color: var(--accent-cyan); }
+  .tl-pts[data-heat="1"] { color: var(--text-tertiary); }
+  .tl-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+  .tl-item:hover .tl-text { color: var(--text-primary); }
+
+  /* ===== MAIN PANEL ===== */
+  .panel-main {
+    padding: var(--sp-6) var(--sp-8);
+    background: var(--bg-root);
+  }
+
+  /* Hero / #1 Article */
+  .hero-card {
+    position: relative;
+    background: var(--bg-surface-2);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius-lg);
+    padding: var(--sp-8);
+    margin-bottom: var(--sp-8);
+    overflow: hidden;
+    transition: border-color var(--duration-normal) var(--ease-out),
+                box-shadow var(--duration-normal) var(--ease-out),
+                transform var(--duration-normal) var(--ease-out);
+  }
+  .hero-card:hover {
+    border-color: rgba(0,212,255,0.25);
+    box-shadow: 0 0 30px rgba(0,212,255,0.04), 0 4px 16px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+  /* Animated gradient border glow */
+  /* Hero hover: subtle single-color glow, no rotating gradient */
+
+  /* Inner glow */
+  .hero-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 120px;
+    background: linear-gradient(180deg, rgba(0,212,255,0.03) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .hero-top { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1; }
+  .hero-rank {
+    font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 600;
+    color: var(--accent-cyan); letter-spacing: 1.5px;
+    opacity: 0.7;
+  }
+  .hero-pts-container { text-align: right; }
+  .hero-pts {
+    font-family: 'JetBrains Mono'; font-size: 42px; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .hero-pts-label { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .hero-title {
+    font-size: 22px; font-weight: 700; color: var(--text-primary);
+    line-height: 1.35; margin-top: var(--sp-4);
+    letter-spacing: -0.3px;
+    position: relative; z-index: 1;
+  }
+  .hero-desc {
+    font-size: 14px; color: var(--text-secondary); line-height: 1.65;
+    margin-top: var(--sp-3); max-width: 560px;
+    position: relative; z-index: 1;
+  }
+  .hero-meta {
+    display: flex; align-items: center; gap: var(--sp-4);
+    margin-top: var(--sp-5); font-size: 11px; color: var(--text-tertiary);
+    position: relative; z-index: 1;
+  }
+  .hero-meta a { color: var(--accent-cyan); text-decoration: none; }
+  .hero-meta .sep { color: var(--text-muted); }
+
+  /* Top 3 mini cards */
+  .top-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3);
+    margin-bottom: var(--sp-8);
+  }
+  .top-mini {
+    background: var(--bg-surface-1);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: var(--radius-md);
+    padding: var(--sp-4) var(--sp-5);
+    transition: all var(--duration-normal) var(--ease-out);
+    cursor: pointer;
+    position: relative;
+  }
+  .top-mini:hover {
+    border-color: rgba(0,212,255,0.25);
+    background: var(--bg-surface-2);
+    transform: translateY(-2px);
+    box-shadow: 0 0 16px rgba(0,212,255,0.04), 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .top-mini-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--sp-3); }
+  .top-mini-rank {
+    font-family: 'JetBrains Mono'; font-size: 10px; font-weight: 600;
+    color: var(--text-muted);
+  }
+  .top-mini-rank[data-r="2"] { color: var(--accent-cyan); }
+  .top-mini-rank[data-r="3"] { color: var(--accent-blue); }
+  .top-mini-pts {
+    font-family: 'JetBrains Mono'; font-size: 16px; font-weight: 700;
+    color: var(--accent-cyan);
+  }
+  .top-mini h4 { font-size: 13.5px; font-weight: 600; color: var(--text-primary); line-height: 1.45; }
+  .top-mini .tm-meta { font-size: 10px; color: var(--text-tertiary); margin-top: var(--sp-2); }
+
+  /* Heat bar inside cards */
+  .heat-bar {
+    height: 3px; border-radius: 2px; margin-top: var(--sp-3);
+    background: var(--bg-surface-3);
+    overflow: hidden;
+  }
+  .heat-bar-fill {
+    height: 100%; border-radius: 2px;
+    transition: width 0.6s var(--ease-out);
+  }
+  .heat-bar-fill.hot { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta)); box-shadow: 0 0 8px var(--glow-cyan); }
+  .heat-bar-fill.warm { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); }
+  .heat-bar-fill.mild { background: var(--accent-blue); opacity: 0.5; }
+
+  /* Section divider */
+  .section-divider {
+    display: flex; align-items: center; gap: var(--sp-3);
+    margin: var(--sp-6) 0 var(--sp-5);
+  }
+  .section-label {
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-tertiary);
+  }
+  .section-line { flex: 1; height: 1px; background: var(--border-subtle); }
+
+  /* Feed list */
+  .feed-item {
+    display: grid; grid-template-columns: 40px 1fr auto; gap: var(--sp-3);
+    padding: var(--sp-4) var(--sp-3);
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-out);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .feed-item:hover {
+    background: rgba(0,212,255,0.03);
+    border-bottom-color: transparent;
+    transform: translateX(2px);
+    border-left: 2px solid rgba(0,212,255,0.25);
+    padding-left: calc(var(--sp-3) - 2px);
+  }
+
+  .feed-pts-box {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding-top: 2px;
+  }
+  .feed-pts-num {
+    font-family: 'JetBrains Mono'; font-size: 13px; font-weight: 600;
+    color: var(--text-muted);
+  }
+  .feed-pts-num[data-heat="3"] { color: var(--accent-cyan); }
+  .feed-pts-num[data-heat="2"] { color: rgba(0,212,255,0.65); }
+  .feed-pts-num[data-heat="1"] { color: var(--text-tertiary); }
+
+  /* Mini heat dot */
+  .feed-heat-dot {
+    width: 4px; height: 4px; border-radius: 50%; margin-top: var(--sp-1);
+    background: var(--text-muted);
+  }
+  .feed-heat-dot[data-heat="3"] { background: var(--accent-cyan); box-shadow: 0 0 4px var(--glow-cyan); }
+  .feed-heat-dot[data-heat="2"] { background: rgba(0,212,255,0.5); }
+
+  .feed-body {}
+  .feed-title { font-size: 14px; font-weight: 500; color: var(--text-primary); line-height: 1.5; transition: color var(--duration-fast); }
+  .feed-item:hover .feed-title { color: var(--text-primary); }
+  .feed-desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; opacity: 0.75; }
+  .feed-meta { display: flex; gap: var(--sp-3); margin-top: var(--sp-2); font-size: 11.5px; color: var(--text-tertiary); }
+  .feed-meta .source { color: var(--text-secondary); opacity: 0.7; }
+
+  .feed-right {
+    display: flex; flex-direction: column; align-items: flex-end; gap: var(--sp-1);
+    padding-top: 2px;
+  }
+  .feed-time { font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+  .feed-comments {
+    font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-muted);
+    display: flex; align-items: center; gap: 3px;
+  }
+  .new-badge {
+    font-family: 'JetBrains Mono'; font-size: 8px; font-weight: 700;
+    color: var(--accent-cyan); background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.18);
+    padding: 1px 4px; border-radius: 3px; letter-spacing: 0.5px;
+  }
+
+  /* ===== RIGHT PANEL ===== */
+  .panel-right {
+    background: var(--bg-surface-1);
+    border-left: 1px solid var(--border-subtle);
+    padding: var(--sp-4);
+    display: flex; flex-direction: column; gap: var(--sp-4);
+  }
+
+  /* Ranking list */
+  .rank-list { display: flex; flex-direction: column; }
+  .rank-row {
+    display: grid; grid-template-columns: 22px 1fr 40px; gap: var(--sp-2);
+    align-items: center;
+    padding: var(--sp-3) var(--sp-2);
+    border-radius: var(--radius-sm);
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+  .rank-row:hover { background: rgba(0,212,255,0.04); transform: translateX(2px); }
+  .rank-row + .rank-row { border-top: 1px solid var(--border-subtle); }
+
+  .rank-pos {
+    font-family: 'JetBrains Mono'; font-size: 11px; font-weight: 700;
+    text-align: center; color: var(--text-muted);
+  }
+  .rank-pos[data-rank="1"] {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 13px;
+  }
+  .rank-pos[data-rank="2"] { color: var(--accent-cyan); }
+  .rank-pos[data-rank="3"] { color: var(--accent-blue); }
+
+  .rank-info {}
+  .rank-title { font-size: 12.5px; color: var(--text-secondary); line-height: 1.4; }
+  .rank-row:hover .rank-title { color: var(--text-primary); }
+  .rank-meta { font-size: 10.5px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .rank-score {
+    text-align: right;
+  }
+  .rank-score-num {
+    font-family: 'JetBrains Mono'; font-size: 13px; font-weight: 600;
+    color: var(--accent-cyan);
+  }
+  /* Tiny inline heat bar in ranking */
+  .rank-bar {
+    height: 2px; border-radius: 1px; margin-top: 4px;
+    background: var(--bg-surface-3);
+    overflow: hidden;
+  }
+  .rank-bar-fill { height: 100%; border-radius: 1px; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta)); }
+
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+    margin: var(--sp-2) 0;
+  }
+
+  /* Discussion count emphasis */
+  .disc-count {
+    font-family: 'JetBrains Mono'; font-size: 12px; font-weight: 600;
+    color: var(--accent-orange); text-align: right;
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg-surface-3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  .panel-left, .panel-right { overflow-y: auto; max-height: calc(100vh - 52px); }
+  .panel-main { overflow-y: auto; max-height: calc(100vh - 52px); }
+
+
+/* ===== GUIDE OVERLAY ===== */
+.guide-label {
+  position: absolute; z-index: 999;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.guide-label.cyan { background: rgba(0,212,255,0.9); }
+.guide-label.magenta { background: rgba(217,70,239,0.9); }
+.guide-label.green { background: rgba(16,185,129,0.9); }
+.guide-label.orange { background: rgba(245,158,11,0.9); }
+.guide-label.blue { background: rgba(59,130,246,0.9); }
+.guide-label.red { background: rgba(239,68,68,0.9); }
+.guide-label.white { background: rgba(255,255,255,0.85); color: #111; }
+
+.guide-outline { position: relative; }
+.guide-outline::after {
+  content: ''; position: absolute; inset: -2px;
+  border: 2px dashed currentColor; border-radius: inherit;
+  pointer-events: none; z-index: 998;
+}
+.guide-outline.cyan::after { border-color: rgba(0,212,255,0.7); }
+.guide-outline.magenta::after { border-color: rgba(217,70,239,0.7); }
+.guide-outline.green::after { border-color: rgba(16,185,129,0.7); }
+.guide-outline.orange::after { border-color: rgba(245,158,11,0.7); }
+.guide-outline.blue::after { border-color: rgba(59,130,246,0.7); }
+.guide-outline.red::after { border-color: rgba(239,68,68,0.7); }
+.guide-outline.white::after { border-color: rgba(255,255,255,0.5); }
+
+header { position: relative !important; }
+.panel-left, .panel-main, .panel-right { position: relative; }
+.hero-card { position: relative !important; overflow: visible !important; }
+.top-row { position: relative; }
+.top-mini { position: relative; overflow: visible !important; }
+.section-card { position: relative; overflow: visible !important; }
+.section-divider { position: relative; }
+.feed-item { position: relative; }
+.heat-bar { position: relative; overflow: visible !important; }
+</style>
+</head>
+<body>
+
+<div class="ambient-glow glow-1"></div>
+<div class="ambient-glow glow-2"></div>
+
+<!-- ===== HEADER ===== -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">GN</div>
+    <div class="logo-text">GeekNews <span>Reader</span></div>
+  </div>
+  <div class="nav-tabs">
+    <a href="#" class="active">Feed</a>
+    <a href="#">Top</a>
+    <a href="#">Weekly</a>
+    <a href="#">Archive</a>
+  </div>
+  <div class="header-right">
+    <div class="sync-indicator">
+      <span class="sync-dot"></span>
+      <span class="mono" style="font-size:11px">13:38</span>
+    </div>
+    <div class="article-count"><span class="mono">107</span></div>
+  </div>
+</header>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+    <div class="section-card">
+      <div class="panel-title">Activity <span class="badge">7 days</span></div>
+      <div class="heatmap">
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:33px;background:linear-gradient(180deg,rgba(0,212,255,0.55),rgba(0,212,255,0.15));"></div>
+          <div class="heatmap-label">30</div>
+          <div class="heatmap-count">8</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:75px;background:linear-gradient(180deg,rgba(217,70,239,0.7),rgba(0,212,255,0.25));"></div>
+          <div class="heatmap-label">31</div>
+          <div class="heatmap-count">18</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:58px;background:linear-gradient(180deg,rgba(217,70,239,0.7),rgba(0,212,255,0.25));"></div>
+          <div class="heatmap-label">01</div>
+          <div class="heatmap-count">14</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:46px;background:linear-gradient(180deg,rgba(0,212,255,0.55),rgba(0,212,255,0.15));"></div>
+          <div class="heatmap-label">02</div>
+          <div class="heatmap-count">11</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:80px;background:linear-gradient(180deg,rgba(217,70,239,0.7),rgba(0,212,255,0.25));"></div>
+          <div class="heatmap-label">03</div>
+          <div class="heatmap-count">19</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:54px;background:linear-gradient(180deg,rgba(217,70,239,0.7),rgba(0,212,255,0.25));"></div>
+          <div class="heatmap-label">04</div>
+          <div class="heatmap-count">13</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:63px;background:linear-gradient(180deg,rgba(217,70,239,0.7),rgba(0,212,255,0.25));"></div>
+          <div class="heatmap-label">05</div>
+          <div class="heatmap-count">15</div>
+        </div>
+        <div class="heatmap-day">
+          <div class="heatmap-bar" style="height:37px;background:linear-gradient(180deg,rgba(16,185,129,0.7),rgba(16,185,129,0.2));"></div>
+          <div class="heatmap-label" style="color:var(--accent-green)">06</div>
+          <div class="heatmap-count">9</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section-card">
+      <div class="panel-title">Timeline</div>
+
+      <div class="day-group">
+        <div class="day-header">04.06 Mon <span class="today">TODAY</span><span style="flex:1"></span></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">13</div><div class="tl-text">Awesome Design.MD - 유명 웹사이트 디…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">7</div><div class="tl-text">rtk - LLM 토큰 소비를 60~90% 줄여주는 …</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">5</div><div class="tl-text">코딩 에이전트의 구성 요소</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="0">4</div><div class="tl-text">Google AI Edge Gallery - 완전 오…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="0">4</div><div class="tl-text">Caveman - 원시인 말투로 Claude/Code…</div></div>
+      </div>
+
+      <div class="day-group">
+        <div class="day-header">04.05 Sun<span style="flex:1"></span></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="3">85</div><div class="tl-text">LLM-Wiki - LLM을 활용하여 개인 지식저장소…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">14</div><div class="tl-text">Mac mini에서 Ollama과 Gemma 4 26…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">12</div><div class="tl-text">Show GN: Micro Diffusion - 공부…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">9</div><div class="tl-text">goose - Block이 만든 오픈소스 로컬 실행 …</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">7</div><div class="tl-text">Claude Code가 23년간 숨겨져 있던 Linu…</div></div>
+      </div>
+
+      <div class="day-group">
+        <div class="day-header">04.04 Sat<span style="flex:1"></span></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">31</div><div class="tl-text">당신의 엔지니어링 팀이 느린 진짜 이유는 사람이 아니…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">27</div><div class="tl-text">apfel - Mac에 이미 내장된 무료 AI를 활용…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">14</div><div class="tl-text">Gemma 4 비주얼 가이드</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">12</div><div class="tl-text">Optio - AI 코딩 에이전트를 위한 워크플로 오…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">10</div><div class="tl-text">Claude, 이제 OpenClaw 같은 써드파티에서…</div></div>
+      </div>
+
+      <div class="day-group">
+        <div class="day-header">04.03 Fri<span style="flex:1"></span></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">44</div><div class="tl-text">지금 가장 중요한 AI 아이디어들 (2026년 4월)</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">34</div><div class="tl-text">Show GN: Whispree - 한국어 개발자를 …</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">24</div><div class="tl-text">MiroFish - 다중에이전트 기반 예측 시뮬레이션…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">11</div><div class="tl-text">Lemonade by AMD: GPU와 NPU를 활용…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="1">9</div><div class="tl-text">Claude Code 유출 사건</div></div>
+      </div>
+
+      <div class="day-group">
+        <div class="day-header">04.02 Thu<span style="flex:1"></span></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">44</div><div class="tl-text">Hermes Agent — 경험으로부터 스킬을 생성·…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">35</div><div class="tl-text">옛날 스타일 날씨</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">32</div><div class="tl-text">MiniStack — 무료 오픈소스 로컬 AWS 에뮬…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">28</div><div class="tl-text">Claude Code 소스 유출로 탄생한 OpenCl…</div></div>
+        <div class="tl-item"><div class="tl-pts" data-heat="2">25</div><div class="tl-text">Claude Code Unpacked : 비쥬얼 가이드</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div class="panel-main">
+
+    <!-- Hero: #1 Article -->
+    <div class="hero-card">
+      <div class="hero-top">
+        <div class="hero-rank mono">WEEK #1</div>
+        <div class="hero-pts-container">
+          <div class="hero-pts">95</div>
+          <div class="hero-pts-label mono">points</div>
+        </div>
+      </div>
+      <h2 class="hero-title">Korean Law MCP - 대한민국 법령 검색·조회·분석 도구</h2>
+      <p class="hero-desc">- 대한민국의 전체 법령시스템을 도구화해 AI 어시스턴트나 스크립트에서 바로 호출 가능  
+
+- 64개 법률 도구 — 법령, 판례, 행정규칙, 자치법규,...</p>
+      <div class="hero-meta">
+        <a href="https://github.com/chrisryugj/korean-law-mcp">github.com/chrisryugj</a>
+        <span class="sep">·</span>
+        <span>03.30</span>
+        <span class="sep">·</span>
+        <span>댓글 10개</span>
+        <span class="sep">·</span>
+        <span>by xguru</span>
+      </div>
+      <div class="heat-bar" style="margin-top:20px">
+        <div class="heat-bar-fill hot" style="width:100%"></div>
+      </div>
+    </div>
+
+    <!-- Top 2-4 -->
+    <div class="top-row">
+      <div class="top-mini">
+        <div class="top-mini-header">
+          <span class="top-mini-rank mono" data-r="2">#02</span>
+          <span class="top-mini-pts mono">89</span>
+        </div>
+        <h4>Show GN: 법망 - PostgreSQL 기반 한국 법령 전체를 JSON으로 제공하는 에이전트용 API</h4>
+        <div class="tm-meta">api.beopmang.org · 03.31 · 댓글 15</div>
+        <div class="heat-bar"><div class="heat-bar-fill hot" style="width:93%"></div></div>
+      </div>
+      <div class="top-mini">
+        <div class="top-mini-header">
+          <span class="top-mini-rank mono" data-r="3">#03</span>
+          <span class="top-mini-pts mono">85</span>
+        </div>
+        <h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h4>
+        <div class="tm-meta">gist.github.com/karpathy · 04.05 · 댓글 9</div>
+        <div class="heat-bar"><div class="heat-bar-fill hot" style="width:89%"></div></div>
+      </div>
+      <div class="top-mini">
+        <div class="top-mini-header">
+          <span class="top-mini-rank mono">#04</span>
+          <span class="top-mini-pts mono">80</span>
+        </div>
+        <h4>Claude Code (유출본) 소스 코드  분석서</h4>
+        <div class="tm-meta">wikidocs.net · 04.01 · 댓글 5</div>
+        <div class="heat-bar"><div class="heat-bar-fill hot" style="width:84%"></div></div>
+      </div>
+    </div>
+
+    <!-- Latest Feed -->
+    <div class="section-divider">
+
+      <span class="section-label">Latest</span>
+
+      <span class="section-line"></span>
+
+    </div>
+
+
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="1">13</div>
+        <div class="feed-heat-dot" data-heat="1"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</div>
+        <div class="feed-desc">- DESIGN.md는 [Google Stitch가 도입한 개념](https://news.hada.io/topic?id=27635)으로, AI…</div>
+        <div class="feed-meta"><span class="source">github.com/VoltAgent</span><span>by xguru</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:3</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="1">7</div>
+        <div class="feed-heat-dot" data-heat="1"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</div>
+        <div class="feed-desc">- AI 코딩 도구가 실행하는 CLI 명령어 출력을 LLM에 전달하기 전에 필터링·압축해 토큰을 60~90% 절감하는 단일 Rust 바이너리(…</div>
+        <div class="feed-meta"><span class="source">github.com/rtk-ai</span><span>by xguru</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:3</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">4</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Caveman - 원시인 말투로 Claude/Codex 토큰 절약하기</div>
+        <div class="feed-desc">- 원시인 말투로 응답하도록 강제해 평균 65~75%의 출력 토큰을 절감하는 스킬  
+
+- Lite·Full·Ultra 세 단계로 압축 강도를…</div>
+        <div class="feed-meta"><span class="source">github.com/JuliusBrussee</span><span>by GN⁺</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">2</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">8년의 갈망, 3개월의 완성 - AI가 바꾼 사이드 프로젝트의 공식</div>
+        <div class="feed-desc">- 오랫동안 부족했던 SQLite용 고품질 개발 도구를 AI의 도움으로 단기간에 완성  
+
+- 공식 문법 명세 부재와 복잡한 C 코드베이스로 …</div>
+        <div class="feed-meta"><span class="source">lalitm.com</span><span>by GN⁺</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">2</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">기계는 괜찮아요. 나는 우리가 걱정됩니다.</div>
+        <div class="feed-desc">- AI 도구가 연구 전 과정을 자동화하면서 이해 없이 결과만 생산하는 연구자가 늘어나며, 진짜 위기는 기술의 한계가 아니라 인간의 학습 과정…</div>
+        <div class="feed-meta"><span class="source">ergosphere.blog</span><span>by GN⁺</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">1</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">AWS 엔지니어, Linux 7.0에서 PostgreSQL 성능이 절반으로 감소했다고 보고 – 수정이 쉽지 않을 수 있음</div>
+        <div class="feed-desc">- Linux 7.0 개발 커널에서 PostgreSQL 데이터베이스 서버의 처리량이 이전 커널 대비 약 절반 수준으로 떨어지는 심각한 성능 회…</div>
+        <div class="feed-meta"><span class="source">phoronix.com/news</span><span>by GN⁺</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">4</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Google AI Edge Gallery - 완전 오프라인 LLM 갤러리 앱 오픈소스</div>
+        <div class="feed-desc">- 온디바이스 생성형 AI 실행에 특화된 iOS/안드로이드 앱으로, 인터넷 연결 없이 완전 오프라인·프라이빗 환경에서 LLM을 구동  
+
+- …</div>
+        <div class="feed-meta"><span class="source">github.com/google-ai-edge</span><span>by xguru</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">3</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: 모두를 위한 투자 - 흩어진 정보를 한 곳에, 근데 AI 분석을 곁들인</div>
+        <div class="feed-desc">차트를 드래그하면 그 기간에 무슨 일이 있었는지 바로 볼 수 있는 위키형 투자 정보 사이트를 만들었어요  
+
+  
+
+만들게 된 계기:  
+
+매…</div>
+        <div class="feed-meta"><span class="source">investing-for-everyone.com</span><span>by firstseethesun</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="1">5</div>
+        <div class="feed-heat-dot" data-heat="1"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">코딩 에이전트의 구성 요소</div>
+        <div class="feed-desc">- 코딩 에이전트는 LLM을 중심으로 코드 작성, 실행, 피드백을 반복 수행하는 제어 루프와 소프트웨어 하니스로 구성된 시스템
+- 에이전트 하…</div>
+        <div class="feed-meta"><span class="source">magazine.sebastianraschka.com</span><span>by GN⁺</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="new-badge">NEW</span>
+        <span class="feed-time mono">today</span>
+        <span class="feed-comments mono">c:1</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">2</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: Claude Code Status Bar - 컨텍스트, 비용, rate limit을 항상 보여주는 status line</div>
+        <div class="feed-desc">Claude Code로 작업하다 보면 컨텍스트를 얼마나 썼는지, rate limit이 얼마나 남았는지 확인하려고 매번 /usage를 치게 됩니…</div>
+        <div class="feed-meta"><span class="source">github.com/kangraemin</span><span>by remin1994</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">1</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: notion-to-email: Notion 페이지를 이메일 HTML로 변환하는 오픈소스 라이브러리</div>
+        <div class="feed-desc">Notion 페이지 ID를 넘기면 Gmail, Outlook, Apple Mail에서 정상 렌더링되는  
+
+HTML을 반환하는 TypeScri…</div>
+        <div class="feed-meta"><span class="source">github.com/Sangkwun</span><span>by wer2774</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">1</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: Ravenclaw - AI 코딩 에이전트의 작업 컨텍스트를 관리하는 오픈소스 시스템</div>
+        <div class="feed-desc">## 개요  
+
+  
+
+AI 코딩 에이전트(Claude Code, Gemini CLI, Codex 등)를 여러 프로젝트에서 활용하면서 두 가지…</div>
+        <div class="feed-meta"><span class="source">github.com/chainofdive</span><span>by aeolian21</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="1">12</div>
+        <div class="feed-heat-dot" data-heat="1"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: Micro Diffusion - 공부를 위한 작은 Diffusion 모델</div>
+        <div class="feed-desc">안녕하세요, 약 한 달 전에 텍스트 Diffusion 모델을 처음부터 구현해서 공개했습니다. 최근 Geeknews를 보다가 문득 생각나서 이제…</div>
+        <div class="feed-meta"><span class="source">github.com/Siwoo4985</span><span>by siwoo4985</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="1">5</div>
+        <div class="feed-heat-dot" data-heat="1"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: Z-Image 추론을 20~30% 가속하는 ComfyUI 커스텀 노드</div>
+        <div class="feed-desc">안녕하세요. 지난번 Qwen3-TTS Triton 커널 최적화 프로젝트에 보내주신 관심에 힘입어, 두 번째 오픈소스 프로젝트를 만들어 공유합니…</div>
+        <div class="feed-meta"><span class="source">github.com/newgrit1004</span><span>by newgrit1004</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-pts-box">
+        <div class="feed-pts-num" data-heat="0">1</div>
+        <div class="feed-heat-dot"></div>
+      </div>
+      <div class="feed-body">
+        <div class="feed-title">Show GN: 내가 쓰려고 만들어본 또 하나의 claw</div>
+        <div class="feed-desc">몇일전에 pi-mono 참고로 py-pimono 라는 미니멀한 에이전트를 만들어 다고 소개하신 길을 GeekNews 에서 봤습니다.  
+
+  …</div>
+        <div class="feed-meta"><span class="source">github.com/HatsuneMiku3939</span><span>by hatsunemiku3939</span></div>
+      </div>
+      <div class="feed-right">
+        <span class="feed-time mono">1d</span>
+        <span class="feed-comments mono">c:0</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel-right">
+
+    <!-- Points Ranking -->
+    <div class="section-card">
+      <div class="panel-title">Points Ranking</div>
+      <div class="rank-list" style="margin-top:var(--sp-3)">
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="1">1</div>
+          <div class="rank-info">
+            <div class="rank-title">Korean Law MCP - 대한민국 법령…</div>
+            <div class="rank-meta mono">03.30 · c:10</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">95</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="2">2</div>
+          <div class="rank-info">
+            <div class="rank-title">Show GN: 법망 - PostgreSQL…</div>
+            <div class="rank-meta mono">03.31 · c:15</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">89</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:93%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="3">3</div>
+          <div class="rank-info">
+            <div class="rank-title">LLM-Wiki - LLM을 활용하여 개인 …</div>
+            <div class="rank-meta mono">04.05 · c:9</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">85</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:89%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono">4</div>
+          <div class="rank-info">
+            <div class="rank-title">Claude Code (유출본) 소스 코드 …</div>
+            <div class="rank-meta mono">04.01 · c:5</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">80</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:84%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono">5</div>
+          <div class="rank-info">
+            <div class="rank-title">Claude Code의 숨겨진 강력한 기능들…</div>
+            <div class="rank-meta mono">03.31 · c:6</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">71</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:74%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono">6</div>
+          <div class="rank-info">
+            <div class="rank-title">Claude Code 내부 동작 방식 완전 …</div>
+            <div class="rank-meta mono">04.01 · c:1</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">49</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:51%"></div></div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono">7</div>
+          <div class="rank-info">
+            <div class="rank-title">지금 가장 중요한 AI 아이디어들 (2026…</div>
+            <div class="rank-meta mono">04.03 · c:4</div>
+          </div>
+          <div class="rank-score">
+            <div class="rank-score-num mono">44</div>
+            <div class="rank-bar"><div class="rank-bar-fill" style="width:46%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- Most Discussed -->
+    <div class="section-card">
+      <div class="panel-title">Most Discussed</div>
+      <div class="rank-list" style="margin-top:var(--sp-3)">
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="1">1</div>
+          <div class="rank-info">
+            <div class="rank-title">claw-code - Claude Code …</div>
+            <div class="rank-meta mono">04.01 · 42pts</div>
+          </div>
+          <div class="rank-score">
+            <div class="disc-count mono">52</div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="2">2</div>
+          <div class="rank-info">
+            <div class="rank-title">Claude Code 소스 유출로 탄생한 O…</div>
+            <div class="rank-meta mono">04.02 · 28pts</div>
+          </div>
+          <div class="rank-score">
+            <div class="disc-count mono">21</div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono" data-rank="3">3</div>
+          <div class="rank-info">
+            <div class="rank-title">옛날 스타일 날씨</div>
+            <div class="rank-meta mono">04.02 · 35pts</div>
+          </div>
+          <div class="rank-score">
+            <div class="disc-count mono">16</div>
+          </div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-pos mono">4</div>
+          <div class="rank-info">
+            <div class="rank-title">Show GN: 법망 - PostgreSQL…</div>
+            <div class="rank-meta mono">03.31 · 89pts</div>
+          </div>
+          <div class="rank-score">
+            <div class="disc-count mono">15</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  function addLabel(el, text, color, pos) {
+    if (!el) return;
+    el.classList.add('guide-outline', color);
+    var label = document.createElement('div');
+    label.className = 'guide-label ' + color;
+    label.textContent = text;
+    for (var k in pos) label.style[k] = pos[k];
+    el.appendChild(label);
+  }
+
+  // A. Header
+  var header = document.querySelector('header');
+  addLabel(header, 'A. 헤더', 'cyan', {bottom:'-18px', left:'40%'});
+
+  // B. Left Panel
+  var panelLeft = document.querySelector('.panel-left');
+  addLabel(panelLeft, 'B. 왼쪽 패널', 'magenta', {top:'4px', left:'4px'});
+
+  // B-1. Heatmap
+  var leftCards = document.querySelectorAll('.panel-left .section-card');
+  if (leftCards[0]) addLabel(leftCards[0], 'B-1. 활동 히트맵', 'green', {top:'-16px', right:'4px'});
+  // B-2. Timeline
+  if (leftCards[1]) addLabel(leftCards[1], 'B-2. 타임라인', 'orange', {top:'-16px', right:'4px'});
+
+  // C. Main Panel
+  var panelMain = document.querySelector('.panel-main');
+  addLabel(panelMain, 'C. 메인 패널', 'white', {top:'4px', left:'4px'});
+
+  // C-1. Hero Card
+  var hero = document.querySelector('.hero-card');
+  addLabel(hero, 'C-1. 히어로 카드 (1위 글)', 'red', {top:'-16px', left:'12px'});
+
+  // C-1a. Heat bar inside hero
+  var heroHeatBar = hero ? hero.querySelector('.heat-bar') : null;
+  if (heroHeatBar) addLabel(heroHeatBar, 'C-1a. 히트 바', 'orange', {top:'-16px', right:'0'});
+
+  // C-2. Top Mini Cards
+  var topRow = document.querySelector('.top-row');
+  addLabel(topRow, 'C-2. 탑 미니 카드 (2~4위)', 'blue', {top:'-16px', left:'12px'});
+
+  // C-2 individual cards
+  var topMinis = document.querySelectorAll('.top-mini');
+  topMinis.forEach(function(el, i) {
+    addLabel(el, 'C-2-' + (i+1), 'blue', {bottom:'-16px', left:'50%', transform:'translateX(-50%)'});
+  });
+
+  // C-3. Feed section
+  var feedDivider = document.querySelector('.section-divider');
+  if (feedDivider) addLabel(feedDivider, 'C-3. 피드 리스트 (최신글)', 'green', {top:'-2px', right:'0'});
+
+  // C-3a. Individual feed items (first 2 only)
+  var feedItems = document.querySelectorAll('.feed-item');
+  if (feedItems[0]) addLabel(feedItems[0], 'C-3a. 피드 아이템', 'cyan', {top:'2px', right:'2px'});
+
+  // D. Right Panel
+  var panelRight = document.querySelector('.panel-right');
+  addLabel(panelRight, 'D. 오른쪽 패널', 'magenta', {top:'4px', left:'4px'});
+
+  // D-1. Points Ranking
+  var rightCards = document.querySelectorAll('.panel-right .section-card');
+  if (rightCards[0]) addLabel(rightCards[0], 'D-1. 포인트 랭킹', 'cyan', {top:'-16px', right:'4px'});
+  // D-2. Most Discussed
+  if (rightCards[1]) addLabel(rightCards[1], 'D-2. 댓글 많은 글', 'orange', {top:'-16px', right:'4px'});
+
+  // D separator
+  var sep = document.querySelector('.panel-right .separator');
+  if (sep) {
+    sep.style.position = 'relative';
+    addLabel(sep, '구분선', 'white', {top:'-10px', left:'50%', transform:'translateX(-50%)', fontSize:'9px'});
+  }
+});
+</script>
+</body>
+</html>

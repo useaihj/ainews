@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 3 - TLDR Newsletter Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; font-size: 15px; line-height: 1.7; }
+
+  .wrapper { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+  header { background: #fff; border-bottom: 3px solid #6366f1; padding: 20px 0; margin-bottom: 32px; }
+  header .inner { display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 24px; color: #1e293b; }
+  header h1 span { color: #6366f1; }
+  .date-badge { background: #6366f1; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+  .nav-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: #e2e8f0; border-radius: 8px; padding: 4px; }
+  .nav-tabs a { flex: 1; text-align: center; padding: 8px; border-radius: 6px; text-decoration: none; color: #64748b; font-size: 13px; font-weight: 500; }
+  .nav-tabs a.active { background: #fff; color: #6366f1; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .section { margin-bottom: 36px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .section-header .icon { font-size: 20px; }
+  .section-header h2 { font-size: 16px; font-weight: 700; color: #1e293b; }
+  .section-header .count { background: #e0e7ff; color: #6366f1; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+
+  .article { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 10px; border: 1px solid #e2e8f0; transition: all 0.15s; }
+  .article:hover { border-color: #6366f1; box-shadow: 0 2px 8px rgba(99,102,241,0.1); }
+  .article .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+  .article h3 { font-size: 15px; font-weight: 600; color: #1e293b; line-height: 1.4; flex: 1; }
+  .article .points-badge { background: #fef3c7; color: #b45309; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-left: 12px; white-space: nowrap; }
+  .article .points-badge.hot { background: #fef2f2; color: #dc2626; }
+  .article .summary { font-size: 13px; color: #64748b; margin-top: 6px; line-height: 1.5; }
+  .article .meta { display: flex; gap: 16px; margin-top: 8px; font-size: 12px; color: #94a3b8; }
+  .article .meta .tag { background: #f1f5f9; padding: 1px 6px; border-radius: 3px; }
+
+  .highlight-card { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; padding: 24px; color: #fff; margin-bottom: 24px; }
+  .highlight-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.7; }
+  .highlight-card h3 { font-size: 20px; margin-top: 8px; font-weight: 700; }
+  .highlight-card .hl-meta { margin-top: 10px; font-size: 13px; opacity: 0.8; }
+
+  .divider { display: flex; align-items: center; gap: 12px; margin: 28px 0; color: #cbd5e1; font-size: 12px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+  footer { text-align: center; padding: 32px 0; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrapper inner" style="display:flex;justify-content:space-between;align-items:center;">
+    <h1>Geek<span>News</span> Daily</h1>
+    <div class="date-badge">2026년 4월 6일 (월)</div>
+  </div>
+</header>
+
+<div class="wrapper">
+  <div class="nav-tabs">
+    <a href="#" class="active">오늘</a>
+    <a href="#">이번 주</a>
+    <a href="#">포인트 TOP</a>
+    <a href="#">최신순</a>
+  </div>
+
+  <!-- Highlight -->
+  <div class="highlight-card">
+    <div class="label">이번 주 1위</div>
+    <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+    <div class="hl-meta">95점 | 댓글 10개 | github.com/chrisryugj | 3월 30일</div>
+  </div>
+
+  <!-- Today -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">&#9728;</span>
+      <h2>오늘의 새 글</h2>
+      <span class="count">6개</span>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</h3>
+        <span class="points-badge">9점</span>
+      </div>
+      <div class="summary">GitHub에서 유명 사이트들의 디자인 시스템 MD 파일 모음</div>
+      <div class="meta">
+        <span class="tag">github.com</span>
+        <span>댓글 1개</span>
+        <span>by xguru</span>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h3>
+        <span class="points-badge">4점</span>
+      </div>
+      <div class="summary">AI 코딩 도구 CLI 출력을 필터링/압축해 토큰을 60~90% 절감하는 Rust 바이너리</div>
+      <div class="meta">
+        <span class="tag">github.com</span>
+        <span>댓글 2개</span>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>Google AI Edge Gallery - 완전 오프라인 LLM 갤러리 앱 오픈소스</h3>
+        <span class="points-badge">2점</span>
+      </div>
+      <div class="summary">인터넷 연결 없이 iOS/안드로이드에서 LLM을 실행하는 온디바이스 앱</div>
+      <div class="meta">
+        <span class="tag">github.com</span>
+        <span>댓글 1개</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">어제 하이라이트</div>
+
+  <!-- Yesterday highlights -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">&#128293;</span>
+      <h2>어제 인기글</h2>
+      <span class="count">14개</span>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h3>
+        <span class="points-badge hot">80점</span>
+      </div>
+      <div class="summary">Andrej Karpathy가 코드보다 개인 지식 저장소 구축에 토큰을 더 많이 쓰고 있다며 공개한 LLM 기반 위키 생성 아이디어</div>
+      <div class="meta">
+        <span class="tag">gist.github.com</span>
+        <span>댓글 8개</span>
+        <span>by GN+</span>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h3>
+        <span class="points-badge">12점</span>
+      </div>
+      <div class="summary">Apple Silicon Mac에서 로컬 LLM 구성 및 자동 실행 가이드</div>
+      <div class="meta">
+        <span class="tag">gist.github.com</span>
+        <span>댓글 1개</span>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>Micro Diffusion - 공부를 위한 작은 Diffusion 모델</h3>
+        <span class="points-badge">12점</span>
+      </div>
+      <div class="meta">
+        <span class="tag">github.com</span>
+        <span>댓글 0개</span>
+      </div>
+    </div>
+
+    <div class="article">
+      <div class="top-row">
+        <h3>goose - Block이 만든 오픈소스 로컬 실행 자율 AI 개발 에이전트</h3>
+        <span class="points-badge">9점</span>
+      </div>
+      <div class="meta">
+        <span class="tag">block.github.io</span>
+        <span>댓글 1개</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    GeekNews Reader | 마지막 수집: 2026-04-06 10:55 | 하루 4회 자동 (00/06/12/18시) | 총 102개 보관 중
+  </footer>
+</div>
+
+</body>
+</html>

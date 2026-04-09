@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2 - Techmeme Dashboard Style</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; background: #0f172a; color: #e2e8f0; font-size: 14px; }
+
+  header { background: #1e293b; border-bottom: 1px solid #334155; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 20px; color: #38bdf8; font-weight: 700; }
+  header h1 span { color: #94a3b8; font-weight: 300; font-size: 14px; margin-left: 8px; }
+  .header-stats { display: flex; gap: 20px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 18px; font-weight: 700; color: #38bdf8; }
+  .stat .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+
+  .layout { display: grid; grid-template-columns: 280px 1fr 300px; min-height: calc(100vh - 56px); }
+
+  /* Left sidebar - Timeline */
+  .sidebar-left { background: #1e293b; border-right: 1px solid #334155; padding: 16px; overflow-y: auto; }
+  .sidebar-left h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 12px; }
+  .timeline-date { font-size: 12px; font-weight: 600; color: #38bdf8; margin-top: 16px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #334155; }
+  .timeline-item { padding: 6px 0; border-left: 2px solid #334155; padding-left: 12px; margin-left: 4px; cursor: pointer; }
+  .timeline-item:hover { border-left-color: #38bdf8; background: #0f172a; border-radius: 0 4px 4px 0; }
+  .timeline-item .t-title { font-size: 12px; color: #cbd5e1; line-height: 1.4; }
+  .timeline-item .t-meta { font-size: 10px; color: #64748b; margin-top: 2px; }
+  .timeline-item .t-points { color: #fbbf24; }
+
+  /* Main content */
+  .main { padding: 24px; overflow-y: auto; }
+  .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: #334155; }
+
+  .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+  .top-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; transition: border-color 0.2s; }
+  .top-card:hover { border-color: #38bdf8; }
+  .top-card .badge { display: inline-block; background: #fbbf24; color: #0f172a; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 3px; margin-bottom: 8px; }
+  .top-card .badge.hot { background: #ef4444; color: #fff; }
+  .top-card h3 { font-size: 14px; color: #f1f5f9; line-height: 1.4; margin-bottom: 6px; }
+  .top-card .source { font-size: 11px; color: #64748b; }
+  .top-card .card-meta { display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; color: #94a3b8; }
+  .top-card .pts { color: #fbbf24; font-weight: 700; font-size: 16px; }
+
+  .list-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #1e293b; }
+  .list-item:hover { background: #1e293b; margin: 0 -12px; padding: 10px 12px; border-radius: 6px; }
+  .list-num { font-size: 20px; font-weight: 700; color: #334155; min-width: 30px; }
+  .list-content h4 { font-size: 13px; color: #e2e8f0; line-height: 1.4; }
+  .list-content .lm { font-size: 11px; color: #64748b; margin-top: 3px; }
+
+  /* Right sidebar - Rankings */
+  .sidebar-right { background: #1e293b; border-left: 1px solid #334155; padding: 16px; overflow-y: auto; }
+  .sidebar-right h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 12px; }
+  .rank-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #0f172a; }
+  .rank-num { font-size: 16px; font-weight: 800; color: #334155; min-width: 24px; text-align: center; }
+  .rank-num.gold { color: #fbbf24; }
+  .rank-num.silver { color: #94a3b8; }
+  .rank-num.bronze { color: #b45309; }
+  .rank-info { flex: 1; }
+  .rank-info .r-title { font-size: 12px; color: #cbd5e1; line-height: 1.3; }
+  .rank-info .r-meta { font-size: 10px; color: #64748b; }
+  .rank-pts { font-size: 14px; font-weight: 700; color: #fbbf24; }
+
+  .divider { height: 1px; background: #334155; margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GeekNews Reader <span>/ Dashboard</span></h1>
+  <div class="header-stats">
+    <div class="stat"><div class="num">102</div><div class="label">Total</div></div>
+    <div class="stat"><div class="num">6</div><div class="label">Today</div></div>
+    <div class="stat"><div class="num">4</div><div class="label">NEW</div></div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Left: Timeline -->
+  <div class="sidebar-left">
+    <h2>Timeline</h2>
+
+    <div class="timeline-date">2026-04-06 (월) 오늘</div>
+    <div class="timeline-item">
+      <div class="t-title">Awesome Design.MD - 유명 웹사이트 디자인 시스템</div>
+      <div class="t-meta"><span class="t-points">9점</span> | 댓글 1</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</div>
+      <div class="t-meta"><span class="t-points">4점</span> | 댓글 2</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Google AI Edge Gallery - 오프라인 LLM 갤러리</div>
+      <div class="t-meta"><span class="t-points">2점</span> | 댓글 1</div>
+    </div>
+
+    <div class="timeline-date">2026-04-05 (일)</div>
+    <div class="timeline-item">
+      <div class="t-title">LLM-Wiki - 개인 지식저장소 구축</div>
+      <div class="t-meta"><span class="t-points">80점</span> | 댓글 8</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Micro Diffusion - 공부를 위한 작은 Diffusion 모델</div>
+      <div class="t-meta"><span class="t-points">12점</span> | 댓글 0</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">goose - 오픈소스 자율 AI 개발 에이전트</div>
+      <div class="t-meta"><span class="t-points">9점</span> | 댓글 1</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Claude Code가 Linux 취약점을 발견</div>
+      <div class="t-meta"><span class="t-points">7점</span> | 댓글 1</div>
+    </div>
+
+    <div class="timeline-date">2026-04-04 (토)</div>
+    <div class="timeline-item">
+      <div class="t-title">엔지니어링 팀이 느린 이유는 코드베이스</div>
+      <div class="t-meta"><span class="t-points">30점</span> | 댓글 4</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">apfel - Mac 내장 무료 AI 활용 도구</div>
+      <div class="t-meta"><span class="t-points">26점</span> | 댓글 5</div>
+    </div>
+  </div>
+
+  <!-- Center: Main -->
+  <div class="main">
+    <div class="section-title">HOT this week</div>
+    <div class="top-grid">
+      <div class="top-card">
+        <span class="badge hot">1위</span>
+        <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+        <div class="source">github.com/chrisryugj</div>
+        <div class="card-meta"><span>3/30 | 댓글 10개</span><span class="pts">95</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge hot">2위</span>
+        <h3>법망 - PostgreSQL 기반 한국 법령 전체를 JSON으로 제공</h3>
+        <div class="source">api.beopmang.org</div>
+        <div class="card-meta"><span>3/31 | 댓글 15개</span><span class="pts">89</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge">3위</span>
+        <h3>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축</h3>
+        <div class="source">gist.github.com/karpathy</div>
+        <div class="card-meta"><span>4/5 | 댓글 8개</span><span class="pts">80</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge">4위</span>
+        <h3>Claude Code (유출본) 소스 코드 분석서</h3>
+        <div class="source">wikidocs.net</div>
+        <div class="card-meta"><span>4/1 | 댓글 5개</span><span class="pts">79</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent articles</div>
+    <div class="list-item">
+      <div class="list-num">1</div>
+      <div class="list-content">
+        <h4>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</h4>
+        <div class="lm">9점 | 댓글 1 | github.com | 오늘</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">2</div>
+      <div class="list-content">
+        <h4>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h4>
+        <div class="lm">4점 | 댓글 2 | github.com | 오늘</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">3</div>
+      <div class="list-content">
+        <h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h4>
+        <div class="lm">80점 | 댓글 8 | gist.github.com | 어제</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">4</div>
+      <div class="list-content">
+        <h4>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h4>
+        <div class="lm">12점 | 댓글 1 | gist.github.com | 어제</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">5</div>
+      <div class="list-content">
+        <h4>Micro Diffusion - 공부를 위한 작은 Diffusion 모델</h4>
+        <div class="lm">12점 | 댓글 0 | github.com | 어제</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Rankings -->
+  <div class="sidebar-right">
+    <h2>Points Ranking</h2>
+    <div class="rank-item">
+      <div class="rank-num gold">1</div>
+      <div class="rank-info"><div class="r-title">Korean Law MCP</div><div class="r-meta">3/30 | 댓글 10</div></div>
+      <div class="rank-pts">95</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num silver">2</div>
+      <div class="rank-info"><div class="r-title">법망 - 에이전트용 API</div><div class="r-meta">3/31 | 댓글 15</div></div>
+      <div class="rank-pts">89</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num bronze">3</div>
+      <div class="rank-info"><div class="r-title">LLM-Wiki - 지식저장소</div><div class="r-meta">4/5 | 댓글 8</div></div>
+      <div class="rank-pts">80</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">4</div>
+      <div class="rank-info"><div class="r-title">Claude Code 분석서</div><div class="r-meta">4/1 | 댓글 5</div></div>
+      <div class="rank-pts">79</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">5</div>
+      <div class="rank-info"><div class="r-title">Claude Code 기능 15가지</div><div class="r-meta">3/31 | 댓글 6</div></div>
+      <div class="rank-pts">71</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">6</div>
+      <div class="rank-info"><div class="r-title">Claude Code 내부 해부</div><div class="r-meta">4/1 | 댓글 1</div></div>
+      <div class="rank-pts">49</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">7</div>
+      <div class="rank-info"><div class="r-title">AI 아이디어 (2026.4)</div><div class="r-meta">4/3 | 댓글 4</div></div>
+      <div class="rank-pts">43</div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>Most Discussed</h2>
+    <div class="rank-item">
+      <div class="rank-num gold">1</div>
+      <div class="rank-info"><div class="r-title">claw-code 클린룸 재작성</div><div class="r-meta">4/1 | 42점</div></div>
+      <div class="rank-pts">52</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num silver">2</div>
+      <div class="rank-info"><div class="r-title">OpenClaude - 200개 모델</div><div class="r-meta">4/2 | 28점</div></div>
+      <div class="rank-pts">21</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num bronze">3</div>
+      <div class="rank-info"><div class="r-title">옛날 스타일 날씨</div><div class="r-meta">4/2 | 35점</div></div>
+      <div class="rank-pts">16</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

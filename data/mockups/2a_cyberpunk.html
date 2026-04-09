@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 2A - Cyberpunk Neon</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Rajdhani', sans-serif; background: #0a0a0f; color: #c8d6e5; font-size: 14px; overflow-x: hidden; }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  header {
+    position: relative; z-index: 1;
+    background: linear-gradient(180deg, rgba(0,255,255,0.08) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(0,255,255,0.2);
+    padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(10px);
+  }
+  header h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px; font-weight: 900;
+    color: #00ffff;
+    text-shadow: 0 0 20px rgba(0,255,255,0.5), 0 0 40px rgba(0,255,255,0.2);
+    letter-spacing: 3px;
+  }
+  header h1 .dot { color: #ff00ff; }
+  .header-stats { display: flex; gap: 24px; }
+  .stat { text-align: center; }
+  .stat .num {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px; font-weight: 700;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0,255,255,0.5);
+  }
+  .stat .label { font-size: 10px; color: #4a6670; text-transform: uppercase; letter-spacing: 2px; }
+
+  .pulse-dot { display: inline-block; width: 8px; height: 8px; background: #00ff88; border-radius: 50%; margin-right: 8px;
+    box-shadow: 0 0 8px #00ff88;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .layout { position: relative; z-index: 1; display: grid; grid-template-columns: 280px 1fr 300px; min-height: calc(100vh - 56px); }
+
+  /* Sidebar Left */
+  .sidebar-left {
+    background: rgba(10,10,20,0.8);
+    border-right: 1px solid rgba(0,255,255,0.1);
+    padding: 16px;
+    backdrop-filter: blur(5px);
+  }
+  .sidebar-left h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 3px;
+    color: #00ffff; margin-bottom: 16px;
+    text-shadow: 0 0 10px rgba(0,255,255,0.3);
+  }
+
+  .timeline-date {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px; font-weight: 600;
+    color: #ff00ff; margin-top: 20px; margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 1px solid rgba(255,0,255,0.2);
+    text-shadow: 0 0 8px rgba(255,0,255,0.3);
+  }
+  .timeline-item {
+    padding: 8px 12px;
+    border-left: 2px solid rgba(0,255,255,0.15);
+    margin-left: 4px; margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .timeline-item:hover {
+    border-left-color: #00ffff;
+    background: rgba(0,255,255,0.05);
+    box-shadow: inset 0 0 20px rgba(0,255,255,0.03);
+  }
+  .timeline-item .t-title { font-size: 12px; color: #8899aa; line-height: 1.5; }
+  .timeline-item:hover .t-title { color: #c8d6e5; }
+  .timeline-item .t-meta { font-size: 10px; color: #4a5568; margin-top: 3px; }
+  .timeline-item .t-points { color: #00ffff; font-family: 'Orbitron', monospace; font-size: 10px; }
+
+  /* Main */
+  .main {
+    padding: 24px;
+    background: rgba(10,10,15,0.6);
+    backdrop-filter: blur(5px);
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+    color: #4a6670; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title .line { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,255,255,0.3), transparent); }
+  .section-title .glow { color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.5); }
+
+  .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 36px; }
+  .top-card {
+    background: rgba(0,255,255,0.03);
+    border: 1px solid rgba(0,255,255,0.1);
+    border-radius: 4px; padding: 18px;
+    position: relative; overflow: hidden;
+    transition: all 0.3s;
+  }
+  .top-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #00ffff, #ff00ff);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .top-card:hover { border-color: rgba(0,255,255,0.3); box-shadow: 0 0 30px rgba(0,255,255,0.05); }
+  .top-card:hover::before { opacity: 1; }
+
+  .top-card .badge {
+    font-family: 'Orbitron', monospace;
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 2px; margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .top-card .badge.r1 { background: rgba(255,0,255,0.2); color: #ff00ff; border: 1px solid rgba(255,0,255,0.3); }
+  .top-card .badge.r2 { background: rgba(0,255,255,0.15); color: #00ffff; border: 1px solid rgba(0,255,255,0.2); }
+  .top-card h3 { font-size: 14px; color: #e2e8f0; line-height: 1.5; font-weight: 600; }
+  .top-card .source { font-size: 11px; color: #4a6670; margin-top: 6px; }
+  .top-card .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  .top-card .card-meta span { font-size: 11px; color: #4a6670; }
+  .top-card .pts {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px; font-weight: 900; color: #00ffff;
+    text-shadow: 0 0 15px rgba(0,255,255,0.4);
+  }
+
+  .list-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.2s;
+  }
+  .list-item:hover { background: rgba(0,255,255,0.02); margin: 0 -12px; padding: 12px; }
+  .list-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 18px; font-weight: 700; color: rgba(0,255,255,0.2); min-width: 32px;
+  }
+  .list-content h4 { font-size: 13px; color: #c8d6e5; line-height: 1.5; font-weight: 500; }
+  .list-content .lm { font-size: 11px; color: #4a5568; margin-top: 4px; }
+  .list-content .lm .pts-inline { color: #00ffff; font-family: 'Orbitron', monospace; }
+
+  /* Sidebar Right */
+  .sidebar-right {
+    background: rgba(10,10,20,0.8);
+    border-left: 1px solid rgba(0,255,255,0.1);
+    padding: 16px;
+    backdrop-filter: blur(5px);
+  }
+  .sidebar-right h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 3px;
+    color: #ff00ff; margin-bottom: 16px;
+    text-shadow: 0 0 8px rgba(255,0,255,0.3);
+  }
+
+  .rank-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .rank-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px; font-weight: 900; color: #2a3040; min-width: 28px; text-align: center;
+  }
+  .rank-num.gold { color: #ff00ff; text-shadow: 0 0 10px rgba(255,0,255,0.4); }
+  .rank-num.silver { color: #00ffff; text-shadow: 0 0 8px rgba(0,255,255,0.3); }
+  .rank-num.bronze { color: #ff8800; text-shadow: 0 0 6px rgba(255,136,0,0.3); }
+  .rank-info .r-title { font-size: 12px; color: #8899aa; line-height: 1.4; }
+  .rank-info .r-meta { font-size: 10px; color: #3a4550; }
+  .rank-pts {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px; font-weight: 700; color: #00ffff;
+    text-shadow: 0 0 8px rgba(0,255,255,0.3);
+    margin-left: auto;
+  }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,0,255,0.3), transparent); margin: 24px 0; }
+
+  /* Scanline effect */
+  .scanline {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none; z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<header>
+  <h1>GEEK<span class="dot">.</span>NEWS<span class="dot">.</span>AI</h1>
+  <div class="header-stats">
+    <div class="stat"><div class="num"><span class="pulse-dot"></span>LIVE</div><div class="label">Status</div></div>
+    <div class="stat"><div class="num">102</div><div class="label">Articles</div></div>
+    <div class="stat"><div class="num">+6</div><div class="label">Today</div></div>
+    <div class="stat"><div class="num">10:55</div><div class="label">Last Sync</div></div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="sidebar-left">
+    <h2>// Timeline</h2>
+
+    <div class="timeline-date">2026.04.06 MON_</div>
+    <div class="timeline-item">
+      <div class="t-title">Awesome Design.MD - 유명 웹사이트 디자인 시스템</div>
+      <div class="t-meta"><span class="t-points">009</span> | c:1</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</div>
+      <div class="t-meta"><span class="t-points">004</span> | c:2</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Google AI Edge Gallery - 오프라인 LLM 갤러리</div>
+      <div class="t-meta"><span class="t-points">002</span> | c:1</div>
+    </div>
+
+    <div class="timeline-date">2026.04.05 SUN_</div>
+    <div class="timeline-item">
+      <div class="t-title">LLM-Wiki - 개인 지식저장소 구축</div>
+      <div class="t-meta"><span class="t-points">080</span> | c:8</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Micro Diffusion - 작은 Diffusion 모델</div>
+      <div class="t-meta"><span class="t-points">012</span> | c:0</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">goose - 오픈소스 자율 AI 에이전트</div>
+      <div class="t-meta"><span class="t-points">009</span> | c:1</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">Claude Code - Linux 취약점 발견</div>
+      <div class="t-meta"><span class="t-points">007</span> | c:1</div>
+    </div>
+
+    <div class="timeline-date">2026.04.04 SAT_</div>
+    <div class="timeline-item">
+      <div class="t-title">엔지니어링 팀이 느린 이유는 코드베이스</div>
+      <div class="t-meta"><span class="t-points">030</span> | c:4</div>
+    </div>
+    <div class="timeline-item">
+      <div class="t-title">apfel - Mac 내장 무료 AI 활용</div>
+      <div class="t-meta"><span class="t-points">026</span> | c:5</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="section-title"><span class="glow">HOT</span> this week <span class="line"></span></div>
+    <div class="top-grid">
+      <div class="top-card">
+        <span class="badge r1">#01</span>
+        <h3>Korean Law MCP - 대한민국 법령 검색 조회 분석 도구</h3>
+        <div class="source">github.com/chrisryugj</div>
+        <div class="card-meta"><span>03.30 | 댓글 10</span><span class="pts">95</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge r1">#02</span>
+        <h3>법망 - PostgreSQL 기반 한국 법령 전체를 JSON API로</h3>
+        <div class="source">api.beopmang.org</div>
+        <div class="card-meta"><span>03.31 | 댓글 15</span><span class="pts">89</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge r2">#03</span>
+        <h3>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축</h3>
+        <div class="source">gist.github.com/karpathy</div>
+        <div class="card-meta"><span>04.05 | 댓글 8</span><span class="pts">80</span></div>
+      </div>
+      <div class="top-card">
+        <span class="badge r2">#04</span>
+        <h3>Claude Code (유출본) 소스 코드 분석서</h3>
+        <div class="source">wikidocs.net</div>
+        <div class="card-meta"><span>04.01 | 댓글 5</span><span class="pts">79</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">Recent <span class="line"></span></div>
+    <div class="list-item">
+      <div class="list-num">01</div>
+      <div class="list-content">
+        <h4>Awesome Design.MD - 유명 웹사이트 디자인 시스템을 내 사이트에 적용하기</h4>
+        <div class="lm"><span class="pts-inline">009</span> | 댓글 1 | github.com | today</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">02</div>
+      <div class="list-content">
+        <h4>rtk - LLM 토큰 소비를 60~90% 줄여주는 CLI 프록시</h4>
+        <div class="lm"><span class="pts-inline">004</span> | 댓글 2 | github.com | today</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">03</div>
+      <div class="list-content">
+        <h4>LLM-Wiki - LLM을 활용하여 개인 지식저장소 구축 하기</h4>
+        <div class="lm"><span class="pts-inline">080</span> | 댓글 8 | gist.github.com | 1d ago</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">04</div>
+      <div class="list-content">
+        <h4>Mac mini에서 Ollama과 Gemma 4 26B 모델 설정 요약</h4>
+        <div class="lm"><span class="pts-inline">012</span> | 댓글 1 | gist.github.com | 1d ago</div>
+      </div>
+    </div>
+    <div class="list-item">
+      <div class="list-num">05</div>
+      <div class="list-content">
+        <h4>goose - Block이 만든 오픈소스 자율 AI 개발 에이전트</h4>
+        <div class="lm"><span class="pts-inline">009</span> | 댓글 1 | block.github.io | 1d ago</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-right">
+    <h2>// Rankings</h2>
+    <div class="rank-item">
+      <div class="rank-num gold">01</div>
+      <div class="rank-info"><div class="r-title">Korean Law MCP</div><div class="r-meta">03.30 | c:10</div></div>
+      <div class="rank-pts">95</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num silver">02</div>
+      <div class="rank-info"><div class="r-title">법망 - 에이전트용 API</div><div class="r-meta">03.31 | c:15</div></div>
+      <div class="rank-pts">89</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num bronze">03</div>
+      <div class="rank-info"><div class="r-title">LLM-Wiki - 지식저장소</div><div class="r-meta">04.05 | c:8</div></div>
+      <div class="rank-pts">80</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">04</div>
+      <div class="rank-info"><div class="r-title">Claude Code 분석서</div><div class="r-meta">04.01 | c:5</div></div>
+      <div class="rank-pts">79</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">05</div>
+      <div class="rank-info"><div class="r-title">Claude Code 기능 15가지</div><div class="r-meta">03.31 | c:6</div></div>
+      <div class="rank-pts">71</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">06</div>
+      <div class="rank-info"><div class="r-title">Claude Code 내부 해부</div><div class="r-meta">04.01 | c:1</div></div>
+      <div class="rank-pts">49</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num">07</div>
+      <div class="rank-info"><div class="r-title">AI 아이디어 2026.4</div><div class="r-meta">04.03 | c:4</div></div>
+      <div class="rank-pts">43</div>
+    </div>
+
+    <div class="divider"></div>
+    <h2>// Most Discussed</h2>
+    <div class="rank-item">
+      <div class="rank-num gold">01</div>
+      <div class="rank-info"><div class="r-title">claw-code 클린룸 재작성</div><div class="r-meta">04.01 | 42pts</div></div>
+      <div class="rank-pts">52</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num silver">02</div>
+      <div class="rank-info"><div class="r-title">OpenClaude 200개 모델</div><div class="r-meta">04.02 | 28pts</div></div>
+      <div class="rank-pts">21</div>
+    </div>
+    <div class="rank-item">
+      <div class="rank-num bronze">03</div>
+      <div class="rank-info"><div class="r-title">옛날 스타일 날씨</div><div class="r-meta">04.02 | 35pts</div></div>
+      <div class="rank-pts">16</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
